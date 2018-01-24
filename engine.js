@@ -47,7 +47,12 @@ export default class Engine extends EventListener {
             this.canvas.height = h
             this.context = this.canvas.getContext('2d')
             this.fitScreen()
-            Adapter.onWindowResize(this.fitScreen.bind(this))
+            Adapter.onWindowResize(({ windowWidth, windowHeight }) => {
+                this.fitScreen()
+                if (this.currentScene) {
+                    this.currentScene.trigger('resize', { windowWidth, windowHeight })
+                }
+            })
         }
     }
     fitScreen() {
@@ -97,6 +102,7 @@ export default class Engine extends EventListener {
             console.debug('renderScreenZone', this.renderScreenZone)
             console.debug('renderStageZone', this.renderStageZone)
             console.debug('ratio', this.ratio)
+            console.debug('isCanvasRotate', this.isCanvasRotate)
         }
     }
     getDisplayInfo() {
@@ -120,7 +126,7 @@ export default class Engine extends EventListener {
     handleEvent(e) {
         if (this.currentScene) {
             let { x, y } = e
-            let point = new Vector2(x, y)
+            let point = this.isCanvasRotate ? new Vector2(y, this._canvas.width - x) : new Vector2(x, y)
             switch (this.opts.stageScaleMode) {
                 case 'contain':
                     point.subSelf(this.renderScreenZone.left, this.renderScreenZone.top)
