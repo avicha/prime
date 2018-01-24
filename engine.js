@@ -7,6 +7,7 @@ import Adapter from './adapter'
 
 const defaultConfig = {
     fps: 60,
+    orientation: 'portrait',
     canvas: null,
     screenColor: null,
     stageColor: null,
@@ -46,12 +47,13 @@ export default class Engine extends EventListener {
             this.canvas.height = h
             this.context = this.canvas.getContext('2d')
             this.fitScreen()
+            Adapter.onWindowResize(this.fitScreen.bind(this))
         }
     }
     fitScreen() {
         let { screenWidth, screenHeight, screenSizeRatio } = this.getDisplayInfo()
-        this._canvas.width = screenWidth
-        this._canvas.height = screenHeight
+        this._canvas.width = this.isCanvasRotate ? screenHeight : screenWidth
+        this._canvas.height = this.isCanvasRotate ? screenWidth : screenHeight
         this._context = this._canvas.getContext('2d')
         let stageSizeRatio = this.stageWidth / this.stageHeight
         switch (this.opts.stageScaleMode) {
@@ -98,11 +100,21 @@ export default class Engine extends EventListener {
         }
     }
     getDisplayInfo() {
-        let { screenWidth, screenHeight, windowWidth, windowHeight, pixelRatio } = Adapter.getDisplayInfo()
-        return {
-            screenWidth: windowWidth,
-            screenHeight: windowHeight,
-            screenSizeRatio: windowWidth / windowHeight
+        let { windowWidth, windowHeight } = Adapter.getDisplayInfo()
+        if (this.opts.orientation == 'landscape' && windowWidth < windowHeight || this.opts.orientation == 'portrait' && windowWidth > windowHeight) {
+            this.isCanvasRotate = true
+            return {
+                screenWidth: windowHeight,
+                screenHeight: windowWidth,
+                screenSizeRatio: windowHeight / windowWidth
+            }
+        } else {
+            this.isCanvasRotate = false
+            return {
+                screenWidth: windowWidth,
+                screenHeight: windowHeight,
+                screenSizeRatio: windowWidth / windowHeight
+            }
         }
     }
     handleEvent(e) {
@@ -198,7 +210,16 @@ export default class Engine extends EventListener {
                 this.context.clearRect(0, 0, this.stageWidth, this.stageHeight)
             }
             this.currentScene.draw(this.context)
+            if (this.isCanvasRotate) {
+                this._context.save()
+                this._context.translate(this._canvas.width / 2, this._canvas.height / 2)
+                this._context.rotate(0.5 * Math.PI)
+                this._context.translate(-this._canvas.height / 2, -this._canvas.width / 2)
+            }
             this._context.drawImage(this.canvas, this.renderStageZone.left, this.renderStageZone.top, this.renderStageZone.width, this.renderStageZone.height, this.renderScreenZone.left, this.renderScreenZone.top, this.renderScreenZone.width, this.renderScreenZone.height)
+            if (this.isCanvasRotate) {
+                this._context.restore()
+            }
         }
     }
     start() {

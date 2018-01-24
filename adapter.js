@@ -25,7 +25,6 @@ if (is_weixin_minigame) {
     }
 }
 
-
 export default class Adapter {
     static platform = platform
     static setPlatform(platform) {
@@ -181,6 +180,18 @@ export default class Adapter {
                 break
         }
     }
+    static onWindowResize(callback) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                wx.onWindowResize(callback)
+                break
+            default:
+                window.addEventListener('resize', () => {
+                    callback({ windowWidth: Math.max(window.innerWidth, document.documentElement.clientWidth), windowHeight: Math.max(window.innerHeight, document.documentElement.clientHeight) })
+                })
+                break
+        }
+    }
     static onAudioCanplay(audio, callback) {
         switch (Adapter.platform) {
             case 'weixin_minigame':
@@ -230,8 +241,8 @@ export default class Adapter {
                 return {
                     screenWidth: window.screen.width,
                     screenHeight: window.screen.height,
-                    windowWidth: window.innerWidth,
-                    windowHeight: window.innerHeight,
+                    windowWidth: Math.max(window.innerWidth, document.documentElement.clientWidth),
+                    windowHeight: Math.max(window.innerHeight, document.documentElement.clientHeight),
                     pixelRatio: window.devicePixelRatio
                 }
         }
