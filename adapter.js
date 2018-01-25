@@ -192,13 +192,52 @@ export default class Adapter {
                 break
         }
     }
-    static onAudioCanplay(audio, callback) {
+    static onAudioCanplay(audio, src, callback) {
         switch (Adapter.platform) {
             case 'weixin_minigame':
-                audio.onCanplay(callback)
+                audio.onCanplay(() => {
+                    callback(null)
+                })
+                audio.src = src
                 break
             default:
-                audio.addEventListener('canplay', callback)
+                let URL = window.webkitURL || window.URL
+                if (URL && window.location.origin != 'file://') {
+                    //绑定加载完成事件
+                    let xhr = new XMLHttpRequest()
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            let url = URL.createObjectURL(this.response)
+                            audio.src = url
+                            callback(null)
+                        }
+                    }
+                    xhr.onerror = e => {
+                        callback(e)
+                    }
+                    xhr.open('GET', src)
+                    xhr.responseType = 'blob'
+                    xhr.send()
+                } else {
+                    audio.addEventListener('canplaythrough', callback)
+                    audio.src = src
+                }
+                break
+        }
+    }
+    static playAudio(audio) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                audio.play()
+                break
+            case 'weixin_web':
+                wx.getNetworkType({
+                    complete(res) {
+                        audio.play()
+                    }
+                })
+            default:
+                audio.play()
                 break
         }
     }
@@ -209,6 +248,27 @@ export default class Adapter {
                 break
             default:
                 audio.currentTime = position
+                break
+        }
+    }
+    static stopAudio(audio) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                audio.stop()
+                break
+            default:
+                audio.currentTime = 0
+                audio.pause()
+                break
+        }
+    }
+    static pauseAudio(audio) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                audio.pause()
+                break
+            default:
+                audio.pause()
                 break
         }
     }

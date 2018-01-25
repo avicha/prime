@@ -21,9 +21,7 @@ export default class GameObject extends EventListener {
         this.angle = 0
         //缩放比例
         this.scale = new Vector2(1, 1)
-        for (let key in opts) {
-            this[key] = opts[key]
-        }
+        Object.assign(this, opts)
     }
     //结束精灵生命周期
     kill() {

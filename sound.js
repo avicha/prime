@@ -23,13 +23,15 @@ export default class Sound {
         if (!this.loaded) {
             this.music = Adapter.createAudio()
             //绑定加载完成事件
-            Adapter.onAudioCanplay(this.music, () => {
+            Adapter.onAudioCanplay(this.music, this.path, err => {
                 if (!this.loaded) {
-                    this.onload(callback)
+                    if (!err) {
+                        this.onload(callback)
+                    } else {
+                        callback(err)
+                    }
                 }
             })
-            this.music.src = this.path
-            this.music.obeyMuteSwitch = this.obeyMuteSwitch
             return this
         } else {
             this.onload(callback)
@@ -38,31 +40,39 @@ export default class Sound {
     onload(callback) {
         this.loaded = true
         this.duration = this.music.duration
+        this.music.obeyMuteSwitch = this.obeyMuteSwitch
         callback(null)
     }
     play(isLoop) {
-        this.isPlaying = true
-        this.isLoop = isLoop
-        this.music.loop = this.isLoop
-        this.music.play()
+        if (this.loaded) {
+            this.isPlaying = true
+            this.isLoop = isLoop
+            this.music.loop = this.isLoop
+            Adapter.playAudio(this.music)
+        } else {
+            throw new Error('请先加载音频资源' + this.path)
+        }
     }
     //停止
     stop() {
         if (this.loaded && this.isPlaying) {
-            Adapter.seekAudio(this.music, 0)
-            this.music.pause()
+            Adapter.stopAudio(this.music)
             this.isPlaying = false
         }
     }
     pause() {
         if (this.loaded && this.isPlaying) {
-            this.music.pause()
+            Adapter.pauseAudio(this.music)
             this.isPlaying = false
         }
     }
     replay() {
-        Adapter.seekAudio(this.music, 0)
-        this.play(this.isLoop)
+        if (this.loaded) {
+            Adapter.seekAudio(this.music, 0)
+            this.play(this.isLoop)
+        } else {
+            throw new Error('请先加载音频资源' + this.path)
+        }
     }
     //调大音量
     turnUp(num = 0.1) {
