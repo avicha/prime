@@ -57,48 +57,81 @@ export default class Engine extends EventListener {
     }
     fitScreen() {
         let { screenWidth, screenHeight, screenSizeRatio } = this.getDisplayInfo()
-        this._canvas.width = this.isCanvasRotate ? screenHeight : screenWidth
-        this._canvas.height = this.isCanvasRotate ? screenWidth : screenHeight
+        this._canvas.style.width = (this.isCanvasRotate ? screenHeight : screenWidth) + 'px'
+        this._canvas.style.height = (this.isCanvasRotate ? screenWidth : screenHeight) + 'px'
         this._context = this._canvas.getContext('2d')
         let stageSizeRatio = this.stageWidth / this.stageHeight
         switch (this.opts.stageScaleMode) {
             case 'contain':
                 this.renderStageZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight)
                 if (screenSizeRatio < stageSizeRatio) {
-                    this.renderScreenZone = new Rectangle(0, Math.round((screenHeight - screenWidth / stageSizeRatio) / 2), screenWidth, Math.round(screenWidth / stageSizeRatio))
+                    if (this.isCanvasRotate) {
+                        this._canvas.width = this.stageWidth / screenSizeRatio
+                        this._canvas.height = this.stageWidth
+                        this.renderScreenZone = new Rectangle(0, Math.round((this._canvas.width - this.stageHeight) / 2), this.stageWidth, this.stageHeight)
+                    } else {
+                        this._canvas.width = this.stageWidth
+                        this._canvas.height = this.stageWidth / screenSizeRatio
+                        this.renderScreenZone = new Rectangle(0, Math.round((this._canvas.height - this.stageHeight) / 2), this.stageWidth, this.stageHeight)
+                    }
+                    this.ratio = new Vector2(screenWidth / this.stageWidth, screenWidth / this.stageWidth)
                 } else {
-                    this.renderScreenZone = new Rectangle(Math.round((screenWidth - screenHeight * stageSizeRatio) / 2), 0, screenHeight * stageSizeRatio, screenHeight)
+                    if (this.isCanvasRotate) {
+                        this._canvas.width = this.stageHeight
+                        this._canvas.height = this.stageHeight * screenSizeRatio
+                        this.renderScreenZone = new Rectangle(Math.round((this._canvas.height - this.stageWidth) / 2), 0, this.stageWidth, this.stageHeight)
+                    } else {
+                        this._canvas.width = this.stageHeight * screenSizeRatio
+                        this._canvas.height = this.stageHeight
+                        this.renderScreenZone = new Rectangle(Math.round((this._canvas.width - this.stageWidth) / 2), 0, this.stageWidth, this.stageHeight)
+                    }
+                    this.ratio = new Vector2(screenHeight / this.stageHeight, screenHeight / this.stageHeight)
                 }
                 break
             case 'cover':
                 if (screenSizeRatio < stageSizeRatio) {
-                    this.renderScreenZone = new Rectangle(Math.round((screenWidth - screenHeight * stageSizeRatio) / 2), 0, Math.round(screenHeight * stageSizeRatio), screenHeight)
-                    this.renderStageZone = new Rectangle(Math.round((this.stageWidth - this.stageHeight * screenSizeRatio) / 2), 0, Math.round(this.stageHeight * screenSizeRatio), this.stageHeight)
+                    if (this.isCanvasRotate) {
+                        this._canvas.width = this.stageHeight
+                        this._canvas.height = this.stageHeight * screenSizeRatio
+                        this.renderScreenZone = new Rectangle(Math.round((this._canvas.height - this.stageWidth) / 2), 0, this.stageWidth, this.stageHeight)
+                        this.renderStageZone = new Rectangle(Math.round((this.stageWidth - this._canvas.height) / 2), 0, this._canvas.height, this._canvas.width)
+                    } else {
+                        this._canvas.width = this.stageHeight * screenSizeRatio
+                        this._canvas.height = this.stageHeight
+                        this.renderScreenZone = new Rectangle(Math.round((this._canvas.width - this.stageWidth) / 2), 0, this.stageWidth, this.stageHeight)
+                        this.renderStageZone = new Rectangle(Math.round((this.stageWidth - this._canvas.width) / 2), 0, this._canvas.width, this._canvas.height)
+                    }
+                    this.ratio = new Vector2(screenHeight / this.stageHeight, screenHeight / this.stageHeight)
                 } else {
-                    this.renderScreenZone = new Rectangle(0, Math.round((screenHeight - screenWidth / stageSizeRatio) / 2), screenWidth, screenWidth / stageSizeRatio)
-                    this.renderStageZone = new Rectangle(0, Math.round((this.stageHeight - this.stageWidth / screenSizeRatio) / 2), this.stageWidth, Math.round(this.stageWidth / screenSizeRatio))
+                    if (this.isCanvasRotate) {
+                        this._canvas.width = this.stageWidth / screenSizeRatio
+                        this._canvas.height = this.stageWidth
+                        this.renderScreenZone = new Rectangle(0, Math.round((this._canvas.width - this.stageHeight) / 2), this.stageWidth, this.stageHeight)
+                        this.renderStageZone = new Rectangle(0, Math.round((this.stageHeight - this._canvas.width) / 2), this._canvas.height, this._canvas.width)
+                    } else {
+                        this._canvas.width = this.stageWidth
+                        this._canvas.height = this.stageWidth / screenSizeRatio
+                        this.renderScreenZone = new Rectangle(0, Math.round((this._canvas.height - this.stageHeight) / 2), this.stageWidth, this.stageHeight)
+                        this.renderStageZone = new Rectangle(0, Math.round((this.stageHeight - this._canvas.height) / 2), this._canvas.width, this._canvas.height)
+                    }
+                    this.ratio = new Vector2(screenWidth / this.stageWidth, screenWidth / this.stageWidth)
                 }
                 break
-            case 'noScale':
-                this.renderScreenZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight)
-                this.renderStageZone = new Rectangle(0, 0, Math.min(screenWidth, this.stageWidth), Math.min(screenHeight, this.stageHeight))
-                break
             case 'fill':
-                this.renderScreenZone = new Rectangle(0, 0, screenWidth, screenHeight)
+                if (this.isCanvasRotate) {
+                    this._canvas.width = this.stageHeight
+                    this._canvas.height = this.stageWidth
+                } else {
+                    this._canvas.width = this.stageWidth
+                    this._canvas.height = this.stageHeight
+                }
+                this.ratio = new Vector2(screenWidth / this.stageWidth, screenHeight / this.stageHeight)
+                this.renderScreenZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight)
                 this.renderStageZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight)
-                break
-            case 'widthFixed':
-                this.renderScreenZone = new Rectangle(0, 0, screenWidth, Math.round(screenWidth / stageSizeRatio))
-                this.renderStageZone = new Rectangle(0, 0, this.stageWidth, Math.min(this.stageHeight, Math.round(this.stageWidth / screenSizeRatio)))
-                break
-            case 'heightFixed':
-                this.renderScreenZone = new Rectangle(0, 0, Math.round(screenHeight * stageSizeRatio), screenHeight)
-                this.renderStageZone = new Rectangle(0, 0, Math.min(this.stageWidth, this.stageHeight * screenSizeRatio), this.stageHeight)
                 break
             default:
                 throw new Error(`你所选择的屏幕适配模式${this.opts.stageScaleMode}暂不被支持`)
         }
-        this.ratio = new Vector2(this.renderScreenZone.width / this.stageWidth, this.renderScreenZone.height / this.stageHeight)
         if (this.opts.debug) {
             console.debug('renderScreenZone', this.renderScreenZone)
             console.debug('renderStageZone', this.renderStageZone)
@@ -127,9 +160,14 @@ export default class Engine extends EventListener {
     handleEvent(e) {
         if (this.currentScene) {
             let { x, y } = e
-            let point = this.isCanvasRotate ? new Vector2(y, this._canvas.width - x) : new Vector2(x, y)
-            point.subSelf(this.renderScreenZone.left, this.renderScreenZone.top)
+            let { screenWidth, screenHeight } = this.getDisplayInfo()
+            //点相对于画布的屏幕坐标
+            let point = this.isCanvasRotate ? new Vector2(y, screenHeight - x) : new Vector2(x, y)
+            //点相对于画布的游戏坐标
             point.set(point.x / this.ratio.x, point.y / this.ratio.y)
+            //舞台相对于画布的游戏坐标
+            point.subSelf(this.renderScreenZone.left, this.renderScreenZone.top)
+            //最终得到的就是点相对于舞台的坐标
             let entities = this.currentScene.getEntities()
             for (let len = entities.length; len; len--) {
                 let entity = entities[len - 1]
