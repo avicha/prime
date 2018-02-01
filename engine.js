@@ -176,6 +176,22 @@ export default class Engine extends EventListener {
                     break
                 }
             }
+            if (this.isCanvasRotate) {
+                switch (e.type) {
+                    case 'swipeUp':
+                        e.type = 'swipeLeft'
+                        break
+                    case 'swipeRight':
+                        e.type = 'swipeUp'
+                        break
+                    case 'swipeDown':
+                        e.type = 'swipeRight'
+                        break
+                    case 'swipeLeft':
+                        e.type = 'swipeDown'
+                        break
+                }
+            }
             this.currentScene.trigger(e.type, e)
         }
     }
