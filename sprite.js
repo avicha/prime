@@ -41,7 +41,7 @@ export default class Sprite extends GameObject {
                 this.currentAnimation.draw(ctx, this.position.x, this.position.y)
             } else {
                 if (this.texture) {
-                    this.texture.drawTile(ctx, this.position.x, this.position.y, 0)
+                    this.texture.drawTile(ctx, this.position.x, this.position.y, this.tile || 0)
                 }
             }
         }
