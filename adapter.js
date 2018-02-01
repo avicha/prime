@@ -201,7 +201,7 @@ export default class Adapter {
                 audio.src = src
                 break
             default:
-                let URL = window.webkitURL || window.URL
+                let URL = window.URL || window.webkitURL
                 if (URL && window.location.origin != 'file://') {
                     //绑定加载完成事件
                     let xhr = new XMLHttpRequest()
@@ -219,7 +219,9 @@ export default class Adapter {
                     xhr.responseType = 'blob'
                     xhr.send()
                 } else {
-                    audio.addEventListener('canplaythrough', callback)
+                    audio.addEventListener('canplaythrough', (e) => {
+                        callback(null)
+                    })
                     audio.src = src
                 }
                 break
