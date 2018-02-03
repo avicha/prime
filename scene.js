@@ -41,23 +41,7 @@ export default class Scene extends EventListener {
     draw(ctx) {
         for (let entity of this._entities) {
             if (entity.draw) {
-                ctx.save()
-                //描绘之前，操作画布
-                if (entity.alpha != 1) {
-                    ctx.globalAlpha = entity.alpha
-                }
-                if (entity.angle) {
-                    ctx.rotate(entity.angle)
-                }
-                if (entity.scale.x != 1 || entity.scale.y != 1) {
-                    ctx.scale(entity.scale.x, entity.scale.y)
-                }
                 entity.draw(ctx)
-                //描绘之后恢复画布
-                ctx.restore()
-                if (entity.alpha != 1) {
-                    ctx.globalAlpha = 1
-                }
             }
         }
     }

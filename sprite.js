@@ -37,13 +37,26 @@ export default class Sprite extends GameObject {
     }
     draw(ctx) {
         if (this.visiable) {
+            ctx.save()
+            if (this.alpha != 1) {
+                ctx.globalAlpha = this.alpha
+            }
             if (this.currentAnimation) {
                 this.currentAnimation.draw(ctx, this.position.x, this.position.y)
             } else {
                 if (this.texture) {
-                    this.texture.drawTile(ctx, this.position.x, this.position.y, this.tile || 0)
+                    if (this.angle || this.scale.x !== 1 || this.scale.y !== 1) {
+                        ctx.translate(this.position.x + this.texture.sizeWidth / 2, this.position.y + this.texture.sizeHeight / 2)
+                        ctx.rotate(this.angle)
+                        ctx.scale(this.scale.x, this.scale.y)
+                        ctx.translate(-this.texture.sizeWidth / 2, -this.texture.sizeHeight / 2)
+                        this.texture.drawTile(ctx, 0, 0, this.tile || 0)
+                    } else {
+                        this.texture.drawTile(ctx, this.position.x, this.position.y, this.tile || 0)
+                    }
                 }
             }
+            ctx.restore()
         }
     }
     //碰撞根据两个精灵的形状检测碰撞
