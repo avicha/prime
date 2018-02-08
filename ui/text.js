@@ -100,8 +100,6 @@ export default class Text extends GameObject {
         }
     }
     draw(ctx) {
-        if (this.visiable) {
-            ctx.drawImage(this.canvas, ~~this.position.x, ~~this.position.y)
-        }
+        ctx.drawImage(this.canvas, ~~this.position.x, ~~this.position.y)
     }
 }
