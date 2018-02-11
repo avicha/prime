@@ -57,8 +57,12 @@ export default class Text extends GameObject {
         } else {
             this.context.fillStyle = this.fontColor
         }
-        this.canvas.width = this.context.measureText(longestText).width
-        this.canvas.height = this.lineHeight * this.texts.length
+        let textWidth = this.context.measureText(longestText).width
+        let textHeight = this.lineHeight * this.texts.length
+        this.canvas.width = this.width || textWidth
+        this.canvas.height = this.height || textHeight
+        let offsetLeft = (this.canvas.width - textWidth) / 2
+        let offsetTop = (this.canvas.height - textHeight) / 2
         this.shape = new Rectangle(0, 0, this.canvas.width, this.canvas.height)
         this.context = this.canvas.getContext('2d')
         this.context.textAlign = Text.ALIGN.LEFT
@@ -71,9 +75,9 @@ export default class Text extends GameObject {
         }
         this.texts.forEach((text, i) => {
             if (this.isStroke) {
-                this.context.strokeText(text, 0, i * this.lineHeight)
+                this.context.strokeText(text, offsetLeft, i * this.lineHeight + offsetTop)
             } else {
-                this.context.fillText(text, 0, i * this.lineHeight)
+                this.context.fillText(text, offsetLeft, i * this.lineHeight + offsetTop)
             }
         })
         switch (this.align) {
