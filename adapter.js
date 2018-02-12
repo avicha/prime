@@ -274,6 +274,57 @@ export default class Adapter {
                 break
         }
     }
+    static setStorage(key, data) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                wx.setStorageSync(key, data)
+                break
+            default:
+                localStorage.setItem(key, JSON.stringify(data))
+                break
+        }
+    }
+    static getStorage(key, defaultValue) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                return wx.getStorageSync(key) || defaultValue
+            default:
+                return localStorage.getItem(key) ? JSON.parse(localStorage.getItem(key)) : defaultValue
+        }
+    }
+    static removeStorage(key) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                return wx.removeStorageSync(key)
+            default:
+                return localStorage.removeItem(key)
+        }
+    }
+    static clearStorage() {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                return wx.clearStorageSync()
+            default:
+                return localStorage.clear()
+        }
+    }
+    static getAllStorage() {
+        let obj = {}
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                let storageInfo = wx.getStorageInfoSync()
+                storageInfo.keys.forEach(key => {
+                    obj[key] = wx.getStorageSync(key)
+                })
+                return obj
+            default:
+                for (let i = 0; i < localStorage.length; i++) {
+                    let key = localStorage.key(i)
+                    obj[key] = localStorage.getItem(key)
+                }
+                return obj
+        }
+    }
     static getTextLineHeight({
         fontStyle,
         fontWeight,

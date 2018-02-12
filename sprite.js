@@ -53,6 +53,18 @@ export default class Sprite extends GameObject {
                 } else {
                     this.texture.drawTile(ctx, this.position.x, this.position.y, this.tile || 0)
                 }
+            } else {
+                if (this.canvas) {
+                    if (this.angle || this.scale.x !== 1 || this.scale.y !== 1) {
+                        ctx.translate(this.position.x + this.canvas.width / 2, this.position.y + this.canvas.height / 2)
+                        ctx.rotate(this.angle)
+                        ctx.scale(this.scale.x, this.scale.y)
+                        ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2)
+                        ctx.drawImage(this.canvas, 0, 0)
+                    } else {
+                        ctx.drawImage(this.canvas, this.position.x, this.position.y)
+                    }
+                }
             }
         }
         ctx.restore()
