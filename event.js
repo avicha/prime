@@ -3,7 +3,6 @@ import Adapter from './adapter'
 
 const defaultEventConfig = {
     longPressDelay: 750,
-    moveDetect: false,
     tapMaxX: 10,
     tapMaxY: 10,
     swipeRightAngle: 30,
@@ -76,13 +75,11 @@ export default class Event extends EventListener {
         this.lastTouchInfo.y = y
         this.lastTouchInfo.identifier = identifier
         this.lastTouchInfo.timestamp = timestamp
-        if (this.opts.moveDetect) {
-            let direction = Math.abs(dx) >=
-                Math.abs(dy) ? (dx > 0 ? 'Right' : 'Left') : (dy > 0 ? 'Down' : 'Up')
-            this.target.trigger('move' + direction, { type: 'move' + direction, dx, dy, ...this.lastTouchInfo })
-            if (this.opts.debug) {
-                console.debug('move' + direction, { type: 'move' + direction, dx, dy, ...this.lastTouchInfo })
-            }
+        let direction = Math.abs(dx) >=
+            Math.abs(dy) ? (dx > 0 ? 'Right' : 'Left') : (dy > 0 ? 'Down' : 'Up')
+        this.target.trigger('move' + direction, { type: 'move' + direction, dx, dy, ...this.lastTouchInfo })
+        if (this.opts.debug) {
+            console.debug('move' + direction, { type: 'move' + direction, dx, dy, ...this.lastTouchInfo })
         }
         this.moveDistanceX += Math.abs(dx)
         this.moveDistanceY += Math.abs(dy)
