@@ -31,6 +31,14 @@ export default class Engine extends EventListener {
         this.on('swipeRight', this.handleEvent.bind(this))
         this.on('swipeUp', this.handleEvent.bind(this))
         this.on('swipeDown', this.handleEvent.bind(this))
+        this.on('touchstart', this.handleTouchEvent.bind(this))
+        this.on('touchmove', this.handleTouchEvent.bind(this))
+        this.on('touchend', this.handleTouchEvent.bind(this))
+        this.on('touchcancel', this.handleTouchEvent.bind(this))
+        this.on('moveUp', this.handleMoveEvent.bind(this))
+        this.on('moveRight', this.handleMoveEvent.bind(this))
+        this.on('moveDown', this.handleMoveEvent.bind(this))
+        this.on('moveLeft', this.handleMoveEvent.bind(this))
         Adapter.setEnableDebug({ enableDebug: this.opts.debug })
         if (this.opts.debug) {
             Adapter.onError(e => {
@@ -192,6 +200,38 @@ export default class Engine extends EventListener {
                         break
                 }
             }
+            this.currentScene.trigger(e.type, e)
+        }
+    }
+    handleTouchEvent(e) {
+        if (this.currentScene) {
+            this.currentScene.trigger(e.type, e)
+        }
+    }
+    handleMoveEvent(e) {
+        if (this.currentScene) {
+            let { dx, dy } = e
+            if (this.isCanvasRotate) {
+                switch (e.type) {
+                    case 'moveUp':
+                        e.type = 'moveLeft'
+                        break
+                    case 'moveRight':
+                        e.type = 'moveUp'
+                        break
+                    case 'moveDown':
+                        e.type = 'moveRight'
+                        break
+                    case 'moveLeft':
+                        e.type = 'moveDown'
+                        break
+                }
+                let tmp = dx
+                dx = dy
+                dy = -tmp
+            }
+            dx /= this.ratio.x
+            dy /= this.ratio.y
             this.currentScene.trigger(e.type, e)
         }
     }
