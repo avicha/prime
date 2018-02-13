@@ -232,6 +232,8 @@ export default class Engine extends EventListener {
             }
             dx /= this.ratio.x
             dy /= this.ratio.y
+            e.dx = dx
+            e.dy = dy
             this.currentScene.trigger(e.type, e)
         }
     }
@@ -255,7 +257,7 @@ export default class Engine extends EventListener {
                 })
                 this.currentScene.on('resume', () => {
                     this.trigger('resume')
-                    this.resume()
+                    this.start()
                 })
                 this.start()
             }
@@ -281,8 +283,8 @@ export default class Engine extends EventListener {
         }
     }
     run() {
-        Adapter.requestAnimationFrame(() => { this.run() })
         if (this.isRunning && this.currentScene) {
+            Adapter.requestAnimationFrame(() => { this.run() })
             let now = Date.now()
             let dt = this.lastUpdateTime ? now - this.lastUpdateTime : 0
             this.lastUpdateTime = now
@@ -317,6 +319,11 @@ export default class Engine extends EventListener {
         if (!this.isRunning) {
             this.isRunning = true
             this.run()
+        }
+    }
+    pause() {
+        if (this.isRunning) {
+            this.isRunning = false
         }
     }
 }
