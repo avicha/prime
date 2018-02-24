@@ -40,7 +40,7 @@ export default class Scene extends EventListener {
     }
     draw(ctx) {
         for (let entity of this._entities) {
-            if (entity.draw && entity.visiable) {
+            if (entity.draw && entity.visible) {
                 entity.draw(ctx)
             }
         }

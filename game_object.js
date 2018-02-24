@@ -4,7 +4,7 @@ export default class GameObject extends EventListener {
     constructor(x, y, z, opts = {}) {
         super()
         //是否可见
-        this.visiable = true
+        this.visible = true
         //位置
         this.position = new Vector2(x, y)
         //层次
