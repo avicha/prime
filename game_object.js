@@ -3,6 +3,7 @@ import EventListener from './event_listener'
 export default class GameObject extends EventListener {
     constructor(x, y, z, opts = {}) {
         super()
+        this.createdTime = Date.now()
         //是否可见
         this.visible = true
         //位置

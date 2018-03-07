@@ -15,15 +15,26 @@ export default class Scene extends EventListener {
         gameObject.on('died', () => {
             this.removeGameObject(gameObject)
         })
-        this._entities.sort((a, b) => {
-            return a.z - b.z
-        })
+        this.sortGameObject()
         return gameObject
     }
     removeGameObject(gameObject) {
         let index = this._entities.indexOf(gameObject)
         this._entities.splice(index, 1)
         return gameObject
+    }
+    changeGameObjectZ(gameObject, z) {
+        gameObject.z = z
+        this.sortGameObject()
+    }
+    sortGameObject() {
+        this._entities.sort((a, b) => {
+            if (a.z != b.z) {
+                return a.z - b.z
+            } else {
+                return a.createdTime - b.createdTime
+            }
+        })
     }
     release() {
         for (let entity of this._entities) {
