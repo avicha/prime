@@ -46,7 +46,7 @@ export default class Rectangle {
             context.fillRect(this.left, this.top, this.width, this.height)
         }
     }
-    copy() {
+    clone() {
         return new Rectangle(this.left, this.top, this.width, this.height)
     }
 }

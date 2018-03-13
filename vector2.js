@@ -103,7 +103,7 @@ export default class Vector2 {
     relativeTo(point) {
         return this.add(point)
     }
-    copy() {
+    clone() {
         return new Vector2(this.x, this.y)
     }
 }

@@ -32,11 +32,11 @@ export default class Event extends EventListener {
     bind(target) {
         this.target = target
     }
-    onTouchStart({ touches, changedTouches, timestamp = Date.now(), type = 'touchstart' }) {
+    onTouchStart({ touches, changedTouches, timestamp = Date.now() }) {
         let x = touches[0].clientX
         let y = touches[0].clientY
         let identifier = touches[0].identifier
-        this.target.trigger('touchstart', { touches, changedTouches, timestamp, type, x, y, identifier })
+        this.target.trigger('touchstart', { touches, changedTouches, timestamp, type: 'touchstart', x, y, identifier })
         this.startTouchInfo.x = x
         this.startTouchInfo.y = y
         this.startTouchInfo.identifier = identifier
@@ -63,11 +63,11 @@ export default class Event extends EventListener {
             this.longPressTick = null
         }
     }
-    onTouchMove({ touches, changedTouches, timestamp = Date.now(), type = 'touchmove' }) {
+    onTouchMove({ touches, changedTouches, timestamp = Date.now() }) {
         let x = touches[0].clientX
         let y = touches[0].clientY
         let identifier = touches[0].identifier
-        this.target.trigger('touchmove', { touches, changedTouches, timestamp, type, x, y, identifier })
+        this.target.trigger('touchmove', { touches, changedTouches, timestamp, type: 'touchmove', x, y, identifier })
         this.cancelLongPress()
         let dx = x - this.lastTouchInfo.x
         let dy = y - this.lastTouchInfo.y
@@ -78,11 +78,11 @@ export default class Event extends EventListener {
         this.moveDistanceX += Math.abs(dx)
         this.moveDistanceY += Math.abs(dy)
     }
-    onTouchEnd({ touches, changedTouches, timestamp = Date.now(), type = 'touchend' }) {
+    onTouchEnd({ touches, changedTouches, timestamp = Date.now() }) {
         let x = changedTouches[0].clientX
         let y = changedTouches[0].clientY
         let identifier = changedTouches[0].identifier
-        this.target.trigger('touchend', { touches, changedTouches, timestamp, type, x, y, identifier })
+        this.target.trigger('touchend', { touches, changedTouches, timestamp, type: 'touchend', x, y, identifier })
         this.cancelLongPress()
         this.endTouchInfo.x = x
         this.endTouchInfo.y = y
@@ -135,11 +135,11 @@ export default class Event extends EventListener {
             }
         }
     }
-    onTouchCancel({ touches, changedTouches, timestamp = Date.now(), type = 'touchcancel' }) {
+    onTouchCancel({ touches, changedTouches, timestamp = Date.now() }) {
         let x = changedTouches[0].clientX
         let y = changedTouches[0].clientY
         let identifier = changedTouches[0].identifier
-        this.target.trigger('touchcancel', { touches, changedTouches, timestamp, type, x, y, identifier })
+        this.target.trigger('touchcancel', { touches, changedTouches, timestamp, type: 'touchcancel', x, y, identifier })
         this.cancelLongPress()
     }
 }
