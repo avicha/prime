@@ -21,8 +21,9 @@ export default class Event extends EventListener {
         this.startTouchInfo = {}
         this.lastTouchInfo = {}
         this.endTouchInfo = {}
-        this.moveDistanceX = 0
-        this.moveDistanceY = 0
+        this.moveDistanceX = {}
+        this.moveDistanceY = {}
+        this.longPressTick = {}
         this.lastTapInfo = null
         Adapter.onTouchStart(this.onTouchStart.bind(this))
         Adapter.onTouchMove(this.onTouchMove.bind(this))
@@ -33,113 +34,115 @@ export default class Event extends EventListener {
         this.target = target
     }
     onTouchStart({ touches, changedTouches, timestamp = Date.now() }) {
-        let x = touches[0].clientX
-        let y = touches[0].clientY
-        let identifier = touches[0].identifier
-        this.target.trigger('touchstart', { touches, changedTouches, timestamp, type: 'touchstart', x, y, identifier })
-        this.startTouchInfo.x = x
-        this.startTouchInfo.y = y
-        this.startTouchInfo.identifier = identifier
-        this.startTouchInfo.timestamp = timestamp
-        this.lastTouchInfo.x = x
-        this.lastTouchInfo.y = y
-        this.lastTouchInfo.identifier = identifier
-        this.lastTouchInfo.timestamp = timestamp
-        this.longPressTick = Adapter.setTimeout(() => {
-            this.longPress()
-        }, this.opts.longPressDelay)
-        this.moveDistanceX = this.moveDistanceY = 0
-    }
-    longPress() {
-        this.cancelLongPress()
-        this.target.trigger('longPress', { type: 'longPress', ...this.startTouchInfo })
-        if (this.opts.debug) {
-            console.debug('longPress', { type: 'longPress', ...this.startTouchInfo })
+        for (let i = 0; i < touches.length; i++) {
+            let touch = touches[i]
+            let x = touch.clientX
+            let y = touch.clientY
+            let identifier = touch.identifier
+            this.target.trigger('touchstart', { type: 'touchstart', x, y, identifier, touch })
+            this.startTouchInfo[identifier] = { x, y, identifier }
+            this.lastTouchInfo[identifier] = { x, y, identifier }
+            this.longPressTick[identifier] = Adapter.setTimeout(() => {
+                this.longPress(identifier)
+            }, this.opts.longPressDelay)
+            this.moveDistanceX[identifier] = this.moveDistanceY[identifier] = 0
         }
     }
-    cancelLongPress() {
-        if (this.longPressTick) {
-            Adapter.clearTimeout(this.longPressTick)
-            this.longPressTick = null
+    longPress(identifier) {
+        this.cancelLongPress(identifier)
+        this.target.trigger('longPress', { type: 'longPress', ...this.startTouchInfo[identifier] })
+        if (this.opts.debug) {
+            console.debug('longPress', { type: 'longPress', ...this.startTouchInfo[identifier] })
+        }
+    }
+    cancelLongPress(identifier) {
+        if (this.longPressTick[identifier]) {
+            Adapter.clearTimeout(this.longPressTick[identifier])
+            this.longPressTick[identifier] = null
         }
     }
     onTouchMove({ touches, changedTouches, timestamp = Date.now() }) {
-        let x = touches[0].clientX
-        let y = touches[0].clientY
-        let identifier = touches[0].identifier
-        this.target.trigger('touchmove', { touches, changedTouches, timestamp, type: 'touchmove', x, y, identifier })
-        this.cancelLongPress()
-        let dx = x - this.lastTouchInfo.x
-        let dy = y - this.lastTouchInfo.y
-        this.lastTouchInfo.x = x
-        this.lastTouchInfo.y = y
-        this.lastTouchInfo.identifier = identifier
-        this.lastTouchInfo.timestamp = timestamp
-        this.moveDistanceX += Math.abs(dx)
-        this.moveDistanceY += Math.abs(dy)
+        for (let i = 0; i < touches.length; i++) {
+            let touch = touches[i]
+            let x = touch.clientX
+            let y = touch.clientY
+            let identifier = touch.identifier
+            this.target.trigger('touchmove', { type: 'touchmove', x, y, identifier, touch })
+            this.cancelLongPress(identifier)
+            let dx = x - this.lastTouchInfo[identifier].x
+            let dy = y - this.lastTouchInfo[identifier].y
+            this.lastTouchInfo[identifier] = { x, y, identifier }
+            this.moveDistanceX[identifier] += Math.abs(dx)
+            this.moveDistanceY[identifier] += Math.abs(dy)
+        }
     }
     onTouchEnd({ touches, changedTouches, timestamp = Date.now() }) {
-        let x = changedTouches[0].clientX
-        let y = changedTouches[0].clientY
-        let identifier = changedTouches[0].identifier
-        this.target.trigger('touchend', { touches, changedTouches, timestamp, type: 'touchend', x, y, identifier })
-        this.cancelLongPress()
-        this.endTouchInfo.x = x
-        this.endTouchInfo.y = y
-        this.endTouchInfo.identifier = identifier
-        this.endTouchInfo.timestamp = timestamp
-        if ((this.moveDistanceX <= this.opts.tapMaxX) && (this.moveDistanceY <= this.opts.tapMaxY)) {
-            this.target.trigger('tap', { type: 'tap', ...this.endTouchInfo })
-            if (this.opts.debug) {
-                console.debug('tap', { type: 'tap', ...this.endTouchInfo })
-            }
-            if (this.lastTapInfo) {
-                let dt = timestamp - this.lastTapInfo.timestamp
-                let dx = x - this.lastTapInfo.x
-                let dy = y - this.lastTapInfo.y
-                if ((dt <= 250) && (dx <= this.opts.tapMaxX) && (dy <= this.opts.tapMaxY)) {
-                    this.target.trigger('doubleTap', { type: 'doubleTap', ...this.endTouchInfo })
-                    if (this.opts.debug) {
-                        console.debug('doubleTap', { type: 'doubleTap', ...this.endTouchInfo })
+        for (let i = 0; i < changedTouches.length; i++) {
+            let touch = changedTouches[i]
+            let x = touch.clientX
+            let y = touch.clientY
+            let identifier = touch.identifier
+            this.target.trigger('touchend', { type: 'touchend', x, y, identifier, touch })
+            this.cancelLongPress(identifier)
+            this.endTouchInfo[identifier] = { x, y, identifier }
+            if ((this.moveDistanceX[identifier] <= this.opts.tapMaxX) && (this.moveDistanceY[identifier] <= this.opts.tapMaxY)) {
+                this.target.trigger('tap', { type: 'tap', ...this.endTouchInfo[identifier] })
+                if (this.opts.debug) {
+                    console.debug('tap', { type: 'tap', ...this.endTouchInfo[identifier] })
+                }
+                if (changedTouches.length == 1) {
+                    if (this.lastTapInfo) {
+                        let dt = timestamp - this.lastTapInfo.timestamp
+                        let dx = x - this.lastTapInfo.x
+                        let dy = y - this.lastTapInfo.y
+                        if ((dt <= 250) && (dx <= this.opts.tapMaxX) && (dy <= this.opts.tapMaxY)) {
+                            this.target.trigger('doubleTap', { type: 'doubleTap', ...this.endTouchInfo[identifier] })
+                            if (this.opts.debug) {
+                                console.debug('doubleTap', { type: 'doubleTap', ...this.endTouchInfo[identifier] })
+                            }
+                        }
+                    } else {
+                        this.lastTapInfo = {}
                     }
+                    this.lastTapInfo.x = x
+                    this.lastTapInfo.y = y
+                    this.lastTapInfo.identifier = identifier
+                    this.lastTapInfo.timestamp = timestamp
                 }
             } else {
-                this.lastTapInfo = {}
-            }
-            this.lastTapInfo.x = x
-            this.lastTapInfo.y = y
-            this.lastTapInfo.identifier = identifier
-            this.lastTapInfo.timestamp = timestamp
-        } else {
-            let dx = x - this.startTouchInfo.x
-            let dy = y - this.startTouchInfo.y
-            let angle = Math.atan(dy / dx) * 180 / Math.PI
-            let direction
-            if (dx > 0 && Math.abs(angle) < this.opts.swipeRightAngle) {
-                direction = 'Right'
-            }
-            if (dx < 0 && Math.abs(angle) < this.opts.swipeLeftAngle) {
-                direction = 'Left'
-            }
-            if (dy > 0 && Math.abs(angle) > (90 - this.opts.swipeDownAngle)) {
-                direction = 'Down'
-            }
-            if (dy < 0 && Math.abs(angle) > (90 - this.opts.swipeUpAngle)) {
-                direction = 'Up'
-            }
-            if (((direction == 'Left' || direction == 'Right') && Math.abs(dx) > this.opts.swipeMinX) || ((direction == 'Up' || direction == 'Down') && Math.abs(dy) > this.opts.swipeMinY)) {
-                this.target.trigger('swipe' + direction, { type: 'swipe' + direction, ...this.startTouchInfo })
-                if (this.opts.debug) {
-                    console.debug('swipe' + direction, { type: 'swipe' + direction, ...this.startTouchInfo })
+                let dx = x - this.startTouchInfo[identifier].x
+                let dy = y - this.startTouchInfo[identifier].y
+                let angle = Math.atan(dy / dx) * 180 / Math.PI
+                let direction
+                if (dx > 0 && Math.abs(angle) < this.opts.swipeRightAngle) {
+                    direction = 'Right'
+                }
+                if (dx < 0 && Math.abs(angle) < this.opts.swipeLeftAngle) {
+                    direction = 'Left'
+                }
+                if (dy > 0 && Math.abs(angle) > (90 - this.opts.swipeDownAngle)) {
+                    direction = 'Down'
+                }
+                if (dy < 0 && Math.abs(angle) > (90 - this.opts.swipeUpAngle)) {
+                    direction = 'Up'
+                }
+                if (((direction == 'Left' || direction == 'Right') && Math.abs(dx) > this.opts.swipeMinX) || ((direction == 'Up' || direction == 'Down') && Math.abs(dy) > this.opts.swipeMinY)) {
+                    this.target.trigger('swipe' + direction, { type: 'swipe' + direction, ...this.startTouchInfo[identifier] })
+                    if (this.opts.debug) {
+                        console.debug('swipe' + direction, { type: 'swipe' + direction, ...this.startTouchInfo[identifier] })
+                    }
                 }
             }
         }
     }
     onTouchCancel({ touches, changedTouches, timestamp = Date.now() }) {
-        let x = changedTouches[0].clientX
-        let y = changedTouches[0].clientY
-        let identifier = changedTouches[0].identifier
-        this.target.trigger('touchcancel', { touches, changedTouches, timestamp, type: 'touchcancel', x, y, identifier })
-        this.cancelLongPress()
+        for (let i = 0; i < changedTouches.length; i++) {
+            let touch = changedTouches[i]
+            let x = touch.clientX
+            let y = touch.clientY
+            let identifier = touch.identifier
+            this.target.trigger('touchcancel', { type: 'touchcancel', x, y, identifier, touch })
+            this.cancelLongPress(identifier)
+        }
     }
 }

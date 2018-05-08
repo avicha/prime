@@ -62,7 +62,7 @@ export default class Text extends GameObject {
         this.canvas.width = this.width || textWidth
         this.canvas.height = this.height || textHeight
         let offsetLeft = (this.canvas.width - textWidth) / 2
-        let offsetTop = (this.canvas.height - textHeight) / 2
+        let offsetTop = (this.canvas.height - textHeight) / 2 + (this.lineHeight - this.fontSize) / 2
         this.shape = new Rectangle(0, 0, this.canvas.width, this.canvas.height)
         this.context = this.canvas.getContext('2d')
         this.context.textAlign = Text.ALIGN.LEFT
