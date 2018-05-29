@@ -175,7 +175,7 @@ export default class Engine extends EventListener {
             let entities = this.currentScene.getEntities()
             for (let len = entities.length; len; len--) {
                 let entity = entities[len - 1]
-                if (entity.visible && entity.shape && entity.shape.relativeTo(entity.position).containsWithPoint(point)) {
+                if (entity.visible && entity.touchable && entity.shape && entity.shape.relativeTo(entity.position).containsWithPoint(point)) {
                     e.target = entity
                     break
                 }

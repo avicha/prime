@@ -16,6 +16,10 @@ export default class GameObject extends EventListener {
         this.acceleration = new Vector2(0, 0)
         //是否死亡，是则移除
         this.died = false
+        //是否静态的，是则停止自动更新速度和位置
+        this.silent = false
+        //是否可触摸的，否则不参与touch事件
+        this.touchable = true
         //透明度
         this.alpha = 1
         //旋转角度
@@ -31,9 +35,11 @@ export default class GameObject extends EventListener {
         return this
     }
     update(dt) {
-        //根据当前位置和加速度，速度更新精灵的位置，更新动画帧
-        this.speed.addSelf(this.acceleration.multiply(dt))
-        this.position.addSelf(this.speed.multiply(dt))
+        if (!this.silent) {
+            //根据当前位置和加速度，速度更新精灵的位置，更新动画帧
+            this.speed.addSelf(this.acceleration.multiply(dt))
+            this.position.addSelf(this.speed.multiply(dt))
+        }
     }
     draw() {
         throw new Error('你必须为游戏对象定义绘画方法')
