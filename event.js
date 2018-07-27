@@ -33,15 +33,34 @@ export default class Event extends EventListener {
     bind(target) {
         this.target = target
     }
-    onTouchStart({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchStart({
+        touches,
+        changedTouches,
+        timestamp = Date.now(),
+        preventDefault
+    }) {
         for (let i = 0; i < touches.length; i++) {
             let touch = touches[i]
             let x = touch.clientX
             let y = touch.clientY
             let identifier = touch.identifier
-            this.target.trigger('touchstart', { type: 'touchstart', x, y, identifier, touch })
-            this.startTouchInfo[identifier] = { x, y, identifier }
-            this.lastTouchInfo[identifier] = { x, y, identifier }
+            this.target.trigger('touchstart', {
+                type: 'touchstart',
+                x,
+                y,
+                identifier,
+                touch
+            })
+            this.startTouchInfo[identifier] = {
+                x,
+                y,
+                identifier
+            }
+            this.lastTouchInfo[identifier] = {
+                x,
+                y,
+                identifier
+            }
             this.longPressTick[identifier] = Adapter.setTimeout(() => {
                 this.longPress(identifier)
             }, this.opts.longPressDelay)
@@ -50,9 +69,15 @@ export default class Event extends EventListener {
     }
     longPress(identifier) {
         this.cancelLongPress(identifier)
-        this.target.trigger('longPress', { type: 'longPress', ...this.startTouchInfo[identifier] })
+        this.target.trigger('longPress', {
+            type: 'longPress',
+            ...this.startTouchInfo[identifier]
+        })
         if (this.opts.debug) {
-            console.debug('longPress', { type: 'longPress', ...this.startTouchInfo[identifier] })
+            console.debug('longPress', {
+                type: 'longPress',
+                ...this.startTouchInfo[identifier]
+            })
         }
     }
     cancelLongPress(identifier) {
@@ -61,34 +86,70 @@ export default class Event extends EventListener {
             this.longPressTick[identifier] = null
         }
     }
-    onTouchMove({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchMove({
+        touches,
+        changedTouches,
+        timestamp = Date.now()
+    }) {
         for (let i = 0; i < touches.length; i++) {
             let touch = touches[i]
             let x = touch.clientX
             let y = touch.clientY
             let identifier = touch.identifier
-            this.target.trigger('touchmove', { type: 'touchmove', x, y, identifier, touch })
-            this.cancelLongPress(identifier)
+            this.target.trigger('touchmove', {
+                type: 'touchmove',
+                x,
+                y,
+                identifier,
+                touch
+            })
+            if (x != this.startTouchInfo[identifier].x || y != this.startTouchInfo[identifier].y) {
+                this.cancelLongPress(identifier)
+            }
             let dx = x - this.lastTouchInfo[identifier].x
             let dy = y - this.lastTouchInfo[identifier].y
-            this.lastTouchInfo[identifier] = { x, y, identifier }
+            this.lastTouchInfo[identifier] = {
+                x,
+                y,
+                identifier
+            }
             this.moveDistanceX[identifier] += Math.abs(dx)
             this.moveDistanceY[identifier] += Math.abs(dy)
         }
     }
-    onTouchEnd({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchEnd({
+        touches,
+        changedTouches,
+        timestamp = Date.now()
+    }) {
         for (let i = 0; i < changedTouches.length; i++) {
             let touch = changedTouches[i]
             let x = touch.clientX
             let y = touch.clientY
             let identifier = touch.identifier
-            this.target.trigger('touchend', { type: 'touchend', x, y, identifier, touch })
+            this.target.trigger('touchend', {
+                type: 'touchend',
+                x,
+                y,
+                identifier,
+                touch
+            })
             this.cancelLongPress(identifier)
-            this.endTouchInfo[identifier] = { x, y, identifier }
+            this.endTouchInfo[identifier] = {
+                x,
+                y,
+                identifier
+            }
             if ((this.moveDistanceX[identifier] <= this.opts.tapMaxX) && (this.moveDistanceY[identifier] <= this.opts.tapMaxY)) {
-                this.target.trigger('tap', { type: 'tap', ...this.endTouchInfo[identifier] })
+                this.target.trigger('tap', {
+                    type: 'tap',
+                    ...this.endTouchInfo[identifier]
+                })
                 if (this.opts.debug) {
-                    console.debug('tap', { type: 'tap', ...this.endTouchInfo[identifier] })
+                    console.debug('tap', {
+                        type: 'tap',
+                        ...this.endTouchInfo[identifier]
+                    })
                 }
                 if (changedTouches.length == 1) {
                     if (this.lastTapInfo) {
@@ -96,9 +157,15 @@ export default class Event extends EventListener {
                         let dx = x - this.lastTapInfo.x
                         let dy = y - this.lastTapInfo.y
                         if ((dt <= 250) && (dx <= this.opts.tapMaxX) && (dy <= this.opts.tapMaxY)) {
-                            this.target.trigger('doubleTap', { type: 'doubleTap', ...this.endTouchInfo[identifier] })
+                            this.target.trigger('doubleTap', {
+                                type: 'doubleTap',
+                                ...this.endTouchInfo[identifier]
+                            })
                             if (this.opts.debug) {
-                                console.debug('doubleTap', { type: 'doubleTap', ...this.endTouchInfo[identifier] })
+                                console.debug('doubleTap', {
+                                    type: 'doubleTap',
+                                    ...this.endTouchInfo[identifier]
+                                })
                             }
                         }
                     } else {
@@ -127,21 +194,37 @@ export default class Event extends EventListener {
                     direction = 'Up'
                 }
                 if (((direction == 'Left' || direction == 'Right') && Math.abs(dx) > this.opts.swipeMinX) || ((direction == 'Up' || direction == 'Down') && Math.abs(dy) > this.opts.swipeMinY)) {
-                    this.target.trigger('swipe' + direction, { type: 'swipe' + direction, ...this.startTouchInfo[identifier] })
+                    this.target.trigger('swipe' + direction, {
+                        type: 'swipe' + direction,
+                        ...this.startTouchInfo[identifier]
+                    })
                     if (this.opts.debug) {
-                        console.debug('swipe' + direction, { type: 'swipe' + direction, ...this.startTouchInfo[identifier] })
+                        console.debug('swipe' + direction, {
+                            type: 'swipe' + direction,
+                            ...this.startTouchInfo[identifier]
+                        })
                     }
                 }
             }
         }
     }
-    onTouchCancel({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchCancel({
+        touches,
+        changedTouches,
+        timestamp = Date.now()
+    }) {
         for (let i = 0; i < changedTouches.length; i++) {
             let touch = changedTouches[i]
             let x = touch.clientX
             let y = touch.clientY
             let identifier = touch.identifier
-            this.target.trigger('touchcancel', { type: 'touchcancel', x, y, identifier, touch })
+            this.target.trigger('touchcancel', {
+                type: 'touchcancel',
+                x,
+                y,
+                identifier,
+                touch
+            })
             this.cancelLongPress(identifier)
         }
     }
