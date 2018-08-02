@@ -44,27 +44,32 @@ export default class Event extends EventListener {
             let x = touch.clientX
             let y = touch.clientY
             let identifier = touch.identifier
-            this.target.trigger('touchstart', {
-                type: 'touchstart',
-                x,
-                y,
-                identifier,
-                touch
-            })
-            this.startTouchInfo[identifier] = {
-                x,
-                y,
-                identifier
+            if (!this.startTouchInfo[identifier]) {
+                this.target.trigger('touchstart', {
+                    type: 'touchstart',
+                    x,
+                    y,
+                    identifier,
+                    touch
+                })
+                if (this.opts.debug) {
+                    console.debug(`${identifier} touchstart`, x, y)
+                }
+                this.startTouchInfo[identifier] = {
+                    x,
+                    y,
+                    identifier
+                }
+                this.lastTouchInfo[identifier] = {
+                    x,
+                    y,
+                    identifier
+                }
+                this.longPressTick[identifier] = Adapter.setTimeout(() => {
+                    this.longPress(identifier)
+                }, this.opts.longPressDelay)
+                this.moveDistanceX[identifier] = this.moveDistanceY[identifier] = 0
             }
-            this.lastTouchInfo[identifier] = {
-                x,
-                y,
-                identifier
-            }
-            this.longPressTick[identifier] = Adapter.setTimeout(() => {
-                this.longPress(identifier)
-            }, this.opts.longPressDelay)
-            this.moveDistanceX[identifier] = this.moveDistanceY[identifier] = 0
         }
     }
     longPress(identifier) {
@@ -103,6 +108,9 @@ export default class Event extends EventListener {
                 identifier,
                 touch
             })
+            if (this.opts.debug) {
+                console.debug(`${identifier} touchmove`, x, y)
+            }
             if (x != this.startTouchInfo[identifier].x || y != this.startTouchInfo[identifier].y) {
                 this.cancelLongPress(identifier)
             }
@@ -134,6 +142,9 @@ export default class Event extends EventListener {
                 identifier,
                 touch
             })
+            if (this.opts.debug) {
+                console.debug(`${identifier} touchend`, x, y)
+            }
             this.cancelLongPress(identifier)
             this.endTouchInfo[identifier] = {
                 x,
@@ -206,6 +217,7 @@ export default class Event extends EventListener {
                     }
                 }
             }
+            this.startTouchInfo[identifier] = null
         }
     }
     onTouchCancel({
