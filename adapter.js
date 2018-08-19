@@ -66,7 +66,9 @@ export default class Adapter {
                 return wx.setPreferredFramesPerSecond(fps)
             default:
                 if (fps != 60) {
-                    Adapter.requestAnimationFrame = (fn) => { window.setTimeout(fn, 1000 / fps) }
+                    Adapter.requestAnimationFrame = (fn) => {
+                        window.setTimeout(fn, 1000 / fps)
+                    }
                 }
                 return
         }
@@ -175,7 +177,10 @@ export default class Adapter {
                 break
             default:
                 window.onerror = (msg, url, line, col, err) => {
-                    callback({ message: msg, stack: err && err.stack })
+                    callback({
+                        message: msg,
+                        stack: err && err.stack
+                    })
                 }
                 break
         }
@@ -187,7 +192,10 @@ export default class Adapter {
                 break
             default:
                 window.addEventListener('resize', () => {
-                    callback({ windowWidth: Math.max(window.innerWidth, document.documentElement.clientWidth), windowHeight: Math.max(window.innerHeight, document.documentElement.clientHeight) })
+                    callback({
+                        windowWidth: Math.max(window.innerWidth, document.documentElement.clientWidth),
+                        windowHeight: Math.max(window.innerHeight, document.documentElement.clientHeight)
+                    })
                 })
                 break
         }
@@ -348,8 +356,20 @@ export default class Adapter {
     static getDisplayInfo() {
         switch (Adapter.platform) {
             case 'weixin_minigame':
-                let { screenWidth, screenHeight, windowWidth, windowHeight, pixelRatio } = wx.getSystemInfoSync()
-                return { screenWidth, screenHeight, windowWidth, windowHeight, pixelRatio }
+                let {
+                    screenWidth,
+                    screenHeight,
+                    windowWidth,
+                    windowHeight,
+                    pixelRatio
+                } = wx.getSystemInfoSync()
+                return {
+                    screenWidth,
+                    screenHeight,
+                    windowWidth,
+                    windowHeight,
+                    pixelRatio
+                }
             default:
                 return {
                     screenWidth: window.screen.width,
@@ -371,6 +391,34 @@ export default class Adapter {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 wx.setEnableDebug(...args)
+                break
+        }
+    }
+    static alert({
+        title,
+        content,
+        callback
+    }) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                wx.showModal({
+                    title,
+                    content,
+                    showCancel: false,
+                    cancelText: '取消',
+                    confirmText: '确定',
+                    success(res) {
+                        if (res.confirm && callback) {
+                            callback()
+                        }
+                    }
+                })
+                break
+            default:
+                window.alert(content)
+                if (callback) {
+                    callback()
+                }
                 break
         }
     }
