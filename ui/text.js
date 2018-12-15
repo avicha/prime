@@ -13,8 +13,34 @@ export default class Text extends GameObject {
         TOP: 'top',
         MIDDLE: 'middle'
     }
-    constructor(x, y, z, { text = '', isStroke = false, align = Text.ALIGN.LEFT, valign = Text.VALIGN.TOP, fontSize = 16, lineHeight = 0, fontFamily = 'Arial', fontVariant = 'normal', fontWeight = 'normal', fontStyle = 'normal', fontColor = '#000', ...rest }) {
-        let opts = { text, isStroke, align, valign, fontSize, lineHeight, fontFamily, fontVariant, fontWeight, fontStyle, fontColor, ...rest }
+    constructor(x, y, z, {
+        text = '',
+        isStroke = false,
+        align = Text.ALIGN.LEFT,
+        valign = Text.VALIGN.TOP,
+        fontSize = 16,
+        lineHeight = 0,
+        fontFamily = 'Arial',
+        fontVariant = 'normal',
+        fontWeight = 'normal',
+        fontStyle = 'normal',
+        fontColor = '#000',
+        ...rest
+    }) {
+        let opts = {
+            text,
+            isStroke,
+            align,
+            valign,
+            fontSize,
+            lineHeight,
+            fontFamily,
+            fontVariant,
+            fontWeight,
+            fontStyle,
+            fontColor,
+            ...rest
+        }
         super(x, y, z, opts)
         this.alignX = x
         this.valignY = y
@@ -104,6 +130,19 @@ export default class Text extends GameObject {
         }
     }
     draw(ctx) {
-        ctx.drawImage(this.canvas, ~~this.position.x, ~~this.position.y)
+        ctx.save()
+        if (this.alpha != 1) {
+            ctx.globalAlpha = this.alpha
+        }
+        if (this.angle || this.scale.x !== 1 || this.scale.y !== 1) {
+            ctx.translate(this.position.x + this.canvas.width / 2, this.position.y + this.canvas.height / 2)
+            ctx.rotate(this.angle)
+            ctx.scale(this.scale.x, this.scale.y)
+            ctx.translate(-this.canvas.width / 2, -this.canvas.height / 2)
+            ctx.drawImage(this.canvas, 0, 0)
+        } else {
+            ctx.drawImage(this.canvas, ~~this.position.x, ~~this.position.y)
+        }
+        ctx.restore()
     }
 }
