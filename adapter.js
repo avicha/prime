@@ -87,6 +87,15 @@ export default class Adapter {
             case 'weixin_minigame':
                 return cancelAnimationFrame(...args)
             default:
+                cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame || window.oCancelAnimationFrame || window.msCancelAnimationFrame
+                return cancelAnimationFrame(...args)
+        }
+    }
+    static cancelAnimationFrame(...args) {
+        switch (Adapter.platform) {
+            case 'weixin_minigame':
+                return cancelAnimationFrame(...args)
+            default:
                 cancelAnimationFrame = window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame
                 return cancelAnimationFrame(...args)
         }

@@ -22,7 +22,9 @@ export default class Engine extends EventListener {
         this._canvas = this.opts.canvas || Adapter.createCanvas(true)
         this.isRunning = false
         Adapter.setPreferredFramesPerSecond(this.opts.fps)
-        let event = new Event({ debug: this.opts.debug })
+        let event = new Event({
+            debug: this.opts.debug
+        })
         event.bind(this)
         this.on('longPress', this.handleEvent.bind(this))
         this.on('tap', this.handleEvent.bind(this))
@@ -35,7 +37,9 @@ export default class Engine extends EventListener {
         this.on('touchmove', this.handleEvent.bind(this))
         this.on('touchend', this.handleEvent.bind(this))
         this.on('touchcancel', this.handleEvent.bind(this))
-        Adapter.setEnableDebug({ enableDebug: this.opts.debug })
+        Adapter.setEnableDebug({
+            enableDebug: this.opts.debug
+        })
         if (this.opts.debug) {
             Adapter.onError(e => {
                 this.trigger('error', e)
@@ -51,16 +55,26 @@ export default class Engine extends EventListener {
             this.canvas.height = h
             this.context = this.canvas.getContext('2d')
             this.fitScreen()
-            Adapter.onWindowResize(({ windowWidth, windowHeight }) => {
+            Adapter.onWindowResize(({
+                windowWidth,
+                windowHeight
+            }) => {
                 this.fitScreen()
                 if (this.currentScene) {
-                    this.currentScene.trigger('resize', { windowWidth, windowHeight })
+                    this.currentScene.trigger('resize', {
+                        windowWidth,
+                        windowHeight
+                    })
                 }
             })
         }
     }
     fitScreen() {
-        let { screenWidth, screenHeight, screenSizeRatio } = this.getDisplayInfo()
+        let {
+            screenWidth,
+            screenHeight,
+            screenSizeRatio
+        } = this.getDisplayInfo()
         this._canvas.style.width = (this.isCanvasRotate ? screenHeight : screenWidth) + 'px'
         this._canvas.style.height = (this.isCanvasRotate ? screenWidth : screenHeight) + 'px'
         this._context = this._canvas.getContext('2d')
@@ -144,7 +158,10 @@ export default class Engine extends EventListener {
         }
     }
     getDisplayInfo() {
-        let { windowWidth, windowHeight } = Adapter.getDisplayInfo()
+        let {
+            windowWidth,
+            windowHeight
+        } = Adapter.getDisplayInfo()
         if (this.opts.orientation == 'landscape' && windowWidth < windowHeight || this.opts.orientation == 'portrait' && windowWidth > windowHeight) {
             this.isCanvasRotate = true
             return {
@@ -163,8 +180,14 @@ export default class Engine extends EventListener {
     }
     handleEvent(e) {
         if (this.currentScene) {
-            let { x, y } = e
-            let { screenWidth, screenHeight } = this.getDisplayInfo()
+            let {
+                x,
+                y
+            } = e
+            let {
+                screenWidth,
+                screenHeight
+            } = this.getDisplayInfo()
             //点相对于画布的屏幕坐标
             let point = this.isCanvasRotate ? new Vector2(y, screenHeight - x) : new Vector2(x, y)
             //点相对于画布的游戏坐标
@@ -221,7 +244,7 @@ export default class Engine extends EventListener {
                 })
                 this.currentScene.on('resume', () => {
                     this.trigger('resume')
-                    this.start()
+                    this.resume()
                 })
                 this.start()
             }
@@ -248,7 +271,7 @@ export default class Engine extends EventListener {
     }
     run() {
         if (this.isRunning && this.currentScene) {
-            Adapter.requestAnimationFrame(() => { this.run() })
+            this.tick = Adapter.requestAnimationFrame(this.run.bind(this))
             let now = Date.now()
             let dt = this.lastUpdateTime ? now - this.lastUpdateTime : 0
             this.lastUpdateTime = now
@@ -280,14 +303,26 @@ export default class Engine extends EventListener {
     }
     start() {
         Adapter.triggerGC()
-        if (!this.isRunning) {
-            this.isRunning = true
-            this.run()
+        this.isRunning = true
+        this.lastUpdateTime = 0
+        if (this.tick) {
+            Adapter.cancelAnimationFrame(this.tick)
         }
+        this.run()
     }
     pause() {
         if (this.isRunning) {
             this.isRunning = false
+            Adapter.cancelAnimationFrame(this.tick)
+            this.tick = 0
+            this.lastUpdateTime = 0
+        }
+    }
+    resume() {
+        if (!this.isRunning) {
+            this.isRunning = true
+            this.lastUpdateTime = 0
+            this.run()
         }
     }
 }

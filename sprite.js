@@ -11,6 +11,12 @@ export default class Sprite extends GameObject {
             this.shape = new Rectangle(0, 0, this.texture.sizeWidth, this.texture.sizeHeight)
         }
     }
+    setTexture(texture) {
+        this.texture = texture
+        if (!this.shape && this.texture) {
+            this.shape = new Rectangle(0, 0, this.texture.sizeWidth, this.texture.sizeHeight)
+        }
+    }
     //添加动作为action的动画，帧序列和时间间隔
     addAnimation(action, frames, delay) {
         if (!this.texture) {
@@ -72,9 +78,13 @@ export default class Sprite extends GameObject {
     //碰撞根据两个精灵的形状检测碰撞
     collideWith(other) {
         if (this.shape && other.shape) {
-            return this.shape.relativeTo(this.position).intersectsWith(other.shape.relativeTo(other.position))
+            if (this.z == other.z) {
+                return this.shape.relativeTo(this.position).intersectsWith(other.shape.relativeTo(other.position))
+            } else {
+                return false
+            }
         } else {
-            throw new Error('请先定义精灵的纹理和碰撞形状')
+            throw new Error('请先定义精灵的碰撞形状')
         }
     }
 }
