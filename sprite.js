@@ -32,7 +32,7 @@ export default class Sprite extends GameObject {
             throw new Error(`不存在名字为${action}的动画`)
         } else {
             this.currentAnimation = this.animations[action]
-            this.currentAnimation.play(loopCount, callback)
+            this.currentAnimation.rewind(loopCount, callback)
         }
     }
     update(dt) {

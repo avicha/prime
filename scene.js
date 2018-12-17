@@ -29,11 +29,7 @@ export default class Scene extends EventListener {
     }
     sortGameObject() {
         this._entities.sort((a, b) => {
-            if (a.z != b.z) {
-                return a.z - b.z
-            } else {
-                return a.createdTime - b.createdTime
-            }
+            return a.z * a.createdTime - b.z * b.createdTime
         })
     }
     release() {
