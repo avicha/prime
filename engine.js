@@ -22,7 +22,7 @@ export default class Engine extends EventListener {
         this._canvas = this.opts.canvas || Adapter.createCanvas(true)
         this.isRunning = false
         Adapter.setPreferredFramesPerSecond(this.opts.fps)
-        let event = new Event({
+        const event = new Event({
             debug: this.opts.debug
         })
         event.bind(this)
@@ -70,7 +70,7 @@ export default class Engine extends EventListener {
         }
     }
     fitScreen() {
-        let {
+        const {
             screenWidth,
             screenHeight,
             screenSizeRatio
@@ -78,7 +78,7 @@ export default class Engine extends EventListener {
         this._canvas.style.width = (this.isCanvasRotate ? screenHeight : screenWidth) + 'px'
         this._canvas.style.height = (this.isCanvasRotate ? screenWidth : screenHeight) + 'px'
         this._context = this._canvas.getContext('2d')
-        let stageSizeRatio = this.stageWidth / this.stageHeight
+        const stageSizeRatio = this.stageWidth / this.stageHeight
         switch (this.opts.stageScaleMode) {
             case 'contain':
                 this.renderStageZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight)
@@ -158,7 +158,7 @@ export default class Engine extends EventListener {
         }
     }
     getDisplayInfo() {
-        let {
+        const {
             windowWidth,
             windowHeight
         } = Adapter.getDisplayInfo()
@@ -180,24 +180,24 @@ export default class Engine extends EventListener {
     }
     handleEvent(e) {
         if (this.currentScene) {
-            let {
+            const {
                 x,
                 y
             } = e
-            let {
+            const {
                 screenWidth,
                 screenHeight
             } = this.getDisplayInfo()
             //点相对于画布的屏幕坐标
-            let point = this.isCanvasRotate ? new Vector2(y, screenHeight - x) : new Vector2(x, y)
+            const point = this.isCanvasRotate ? new Vector2(y, screenHeight - x) : new Vector2(x, y)
             //点相对于画布的游戏坐标
             point.set(point.x / this.ratio.x, point.y / this.ratio.y)
             //舞台相对于画布的游戏坐标
             point.subSelf(this.renderScreenZone.left, this.renderScreenZone.top)
             //最终得到的就是点相对于舞台的坐标
-            let entities = this.currentScene.getEntities()
+            const entities = this.currentScene.getEntities()
             for (let len = entities.length; len; len--) {
-                let entity = entities[len - 1]
+                const entity = entities[len - 1]
                 if (entity.visible && entity.touchable && entity.shape && entity.shape.relativeTo(entity.position).containsWithPoint(point)) {
                     e.target = entity
                     break
@@ -233,7 +233,7 @@ export default class Engine extends EventListener {
                 this.trigger('progressError')
             } else {
                 this.trigger('progressComplete')
-                let scene = new Scene(this, ...args)
+                const scene = new Scene(this, ...args)
                 this.currentScene = scene
                 this.currentScene.on('switchScene', (nextScene, ...args) => {
                     this.trigger('switchScene', nextScene, ...args)
@@ -251,9 +251,9 @@ export default class Engine extends EventListener {
         })
     }
     loadSceneResource(Scene, callback) {
-        let resources = Scene.getResources()
+        const resources = Scene.getResources()
         if (resources.length) {
-            let loader = new Loader()
+            const loader = new Loader()
             loader.addResources(resources)
             loader.on('progressUpdate', progress => {
                 this.trigger('progressUpdate', progress)
@@ -272,8 +272,8 @@ export default class Engine extends EventListener {
     run() {
         if (this.isRunning && this.currentScene) {
             this.tick = Adapter.requestAnimationFrame(this.run.bind(this))
-            let now = Date.now()
-            let dt = this.lastUpdateTime ? now - this.lastUpdateTime : 0
+            const now = Date.now()
+            const dt = this.lastUpdateTime ? now - this.lastUpdateTime : 0
             this.lastUpdateTime = now
             this.currentScene.update(dt / 1000)
             if (this.opts.screenColor) {

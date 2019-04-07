@@ -40,10 +40,10 @@ export default class Event extends EventListener {
         preventDefault
     }) {
         for (let i = 0; i < touches.length; i++) {
-            let touch = touches[i]
-            let x = touch.clientX
-            let y = touch.clientY
-            let identifier = touch.identifier
+            const touch = touches[i]
+            const x = touch.clientX
+            const y = touch.clientY
+            const identifier = touch.identifier
             if (!this.startTouchInfo[identifier]) {
                 this.target.trigger('touchstart', {
                     type: 'touchstart',
@@ -97,10 +97,10 @@ export default class Event extends EventListener {
         timestamp = Date.now()
     }) {
         for (let i = 0; i < touches.length; i++) {
-            let touch = touches[i]
-            let x = touch.clientX
-            let y = touch.clientY
-            let identifier = touch.identifier
+            const touch = touches[i]
+            const x = touch.clientX
+            const y = touch.clientY
+            const identifier = touch.identifier
             this.target.trigger('touchmove', {
                 type: 'touchmove',
                 x,
@@ -114,8 +114,8 @@ export default class Event extends EventListener {
             if (x != this.startTouchInfo[identifier].x || y != this.startTouchInfo[identifier].y) {
                 this.cancelLongPress(identifier)
             }
-            let dx = x - this.lastTouchInfo[identifier].x
-            let dy = y - this.lastTouchInfo[identifier].y
+            const dx = x - this.lastTouchInfo[identifier].x
+            const dy = y - this.lastTouchInfo[identifier].y
             this.lastTouchInfo[identifier] = {
                 x,
                 y,
@@ -131,10 +131,10 @@ export default class Event extends EventListener {
         timestamp = Date.now()
     }) {
         for (let i = 0; i < changedTouches.length; i++) {
-            let touch = changedTouches[i]
-            let x = touch.clientX
-            let y = touch.clientY
-            let identifier = touch.identifier
+            const touch = changedTouches[i]
+            const x = touch.clientX
+            const y = touch.clientY
+            const identifier = touch.identifier
             this.target.trigger('touchend', {
                 type: 'touchend',
                 x,
@@ -164,9 +164,9 @@ export default class Event extends EventListener {
                 }
                 if (changedTouches.length == 1) {
                     if (this.lastTapInfo) {
-                        let dt = timestamp - this.lastTapInfo.timestamp
-                        let dx = x - this.lastTapInfo.x
-                        let dy = y - this.lastTapInfo.y
+                        const dt = timestamp - this.lastTapInfo.timestamp
+                        const dx = x - this.lastTapInfo.x
+                        const dy = y - this.lastTapInfo.y
                         if ((dt <= 250) && (dx <= this.opts.tapMaxX) && (dy <= this.opts.tapMaxY)) {
                             this.target.trigger('doubleTap', {
                                 type: 'doubleTap',
@@ -188,9 +188,9 @@ export default class Event extends EventListener {
                     this.lastTapInfo.timestamp = timestamp
                 }
             } else {
-                let dx = x - this.startTouchInfo[identifier].x
-                let dy = y - this.startTouchInfo[identifier].y
-                let angle = Math.atan(dy / dx) * 180 / Math.PI
+                const dx = x - this.startTouchInfo[identifier].x
+                const dy = y - this.startTouchInfo[identifier].y
+                const angle = Math.atan(dy / dx) * 180 / Math.PI
                 let direction
                 if (dx > 0 && Math.abs(angle) < this.opts.swipeRightAngle) {
                     direction = 'Right'
@@ -226,10 +226,10 @@ export default class Event extends EventListener {
         timestamp = Date.now()
     }) {
         for (let i = 0; i < changedTouches.length; i++) {
-            let touch = changedTouches[i]
-            let x = touch.clientX
-            let y = touch.clientY
-            let identifier = touch.identifier
+            const touch = changedTouches[i]
+            const x = touch.clientX
+            const y = touch.clientY
+            const identifier = touch.identifier
             this.target.trigger('touchcancel', {
                 type: 'touchcancel',
                 x,

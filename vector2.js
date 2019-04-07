@@ -93,7 +93,7 @@ export default class Vector2 {
     }
     //距离的平方
     distanceToSquared(v) {
-        let dx = this.x - v.x,
+        const dx = this.x - v.x,
             dy = this.y - v.y
         return dx * dx + dy * dy
     }

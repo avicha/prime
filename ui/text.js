@@ -27,7 +27,7 @@ export default class Text extends GameObject {
         fontColor = '#000',
         ...rest
     }) {
-        let opts = {
+        const opts = {
             text,
             isStroke,
             align,
@@ -47,7 +47,7 @@ export default class Text extends GameObject {
         this.texts = this.text.split('\n')
         this.canvas = Adapter.createCanvas()
         this.context = this.canvas.getContext('2d')
-        let _lineHeight = Adapter.getTextLineHeight({
+        const _lineHeight = Adapter.getTextLineHeight({
             fontStyle,
             fontWeight,
             fontSize,
@@ -83,12 +83,12 @@ export default class Text extends GameObject {
         } else {
             this.context.fillStyle = this.fontColor
         }
-        let textWidth = this.context.measureText(longestText).width
-        let textHeight = this.lineHeight * this.texts.length
+        const textWidth = this.context.measureText(longestText).width
+        const textHeight = this.lineHeight * this.texts.length
         this.canvas.width = this.width || textWidth
         this.canvas.height = this.height || textHeight
-        let offsetLeft = (this.canvas.width - textWidth) / 2
-        let offsetTop = (this.canvas.height - textHeight) / 2 + (this.lineHeight - this.fontSize) / 2
+        const offsetLeft = (this.canvas.width - textWidth) / 2
+        const offsetTop = (this.canvas.height - textHeight) / 2 + (this.lineHeight - this.fontSize) / 2
         this.shape = new Rectangle(0, 0, this.canvas.width, this.canvas.height)
         this.context = this.canvas.getContext('2d')
         this.context.textAlign = Text.ALIGN.LEFT
@@ -108,24 +108,24 @@ export default class Text extends GameObject {
         })
         switch (this.align) {
             case Text.ALIGN.LEFT:
-                this.position.x = this.alignX
+                this._position.x = this.alignX
                 break
             case Text.ALIGN.CENTER:
-                this.position.x = this.alignX - this.canvas.width / 2
+                this._position.x = this.alignX - this.canvas.width / 2
                 break
             case Text.ALIGN.RIGHT:
-                this.position.x = this.alignX - this.canvas.width
+                this._position.x = this.alignX - this.canvas.width
                 break
         }
         switch (this.valign) {
             case Text.VALIGN.TOP:
-                this.position.y = this.valignY
+                this._position.y = this.valignY
                 break
             case Text.VALIGN.MIDDLE:
-                this.position.y = this.valignY - this.canvas.height / 2
+                this._position.y = this.valignY - this.canvas.height / 2
                 break
             case Text.VALIGN.BOTTOM:
-                this.position.y = this.valignY - this.canvas.height
+                this._position.y = this.valignY - this.canvas.height
                 break
         }
     }

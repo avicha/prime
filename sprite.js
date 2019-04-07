@@ -22,7 +22,7 @@ export default class Sprite extends GameObject {
         if (!this.texture) {
             throw new Error('你还没有为此精灵定义纹理呢！')
         }
-        let a = new Animation(this.texture, frames, delay)
+        const a = new Animation(this.texture, frames, delay)
         this.animations[action] = a
         return this
     }

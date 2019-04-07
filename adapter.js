@@ -35,7 +35,7 @@ export default class Adapter {
             case 'weixin_minigame':
                 return wx.createCanvas()
             default:
-                let canvas = document.createElement('canvas')
+                const canvas = document.createElement('canvas')
                 if (isAppendToBody) {
                     document.body.appendChild(canvas)
                 }
@@ -47,7 +47,7 @@ export default class Adapter {
             case 'weixin_minigame':
                 return wx.createInnerAudioContext()
             default:
-                let audio = new Audio()
+                const audio = new Audio()
                 return audio
         }
     }
@@ -56,7 +56,7 @@ export default class Adapter {
             case 'weixin_minigame':
                 return wx.createImage()
             default:
-                let image = new Image()
+                const image = new Image()
                 return image
         }
     }
@@ -138,7 +138,7 @@ export default class Adapter {
                 wx.onTouchStart(callback)
                 break
             default:
-                let dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
+                const dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
                 dom.addEventListener('touchstart', callback)
                 break
         }
@@ -149,7 +149,7 @@ export default class Adapter {
                 wx.onTouchMove(callback)
                 break
             default:
-                let dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
+                const dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
                 dom.addEventListener('touchmove', (e) => {
                     e.preventDefault()
                     callback(e)
@@ -163,7 +163,7 @@ export default class Adapter {
                 wx.onTouchEnd(callback)
                 break
             default:
-                let dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
+                const dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
                 dom.addEventListener('touchend', callback)
                 break
         }
@@ -174,7 +174,7 @@ export default class Adapter {
                 wx.onTouchCancel(callback)
                 break
             default:
-                let dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
+                const dom = document.getElementsByTagName('canvas') ? document.getElementsByTagName('canvas')[0] : window
                 dom.addEventListener('touchcancel', callback)
                 break
         }
@@ -218,13 +218,13 @@ export default class Adapter {
                 audio.src = src
                 break
             default:
-                let URL = window.URL || window.webkitURL
+                const URL = window.URL || window.webkitURL
                 if (URL && window.location.origin != 'file://') {
                     //绑定加载完成事件
-                    let xhr = new XMLHttpRequest()
+                    const xhr = new XMLHttpRequest()
                     xhr.onreadystatechange = function() {
                         if (xhr.readyState == 4 && xhr.status == 200) {
-                            let url = URL.createObjectURL(this.response)
+                            const url = URL.createObjectURL(this.response)
                             audio.src = url
                             callback(null)
                         }
@@ -326,17 +326,17 @@ export default class Adapter {
         }
     }
     static getAllStorage() {
-        let obj = {}
+        const obj = {}
         switch (Adapter.platform) {
             case 'weixin_minigame':
-                let storageInfo = wx.getStorageInfoSync()
+                const storageInfo = wx.getStorageInfoSync()
                 storageInfo.keys.forEach(key => {
                     obj[key] = wx.getStorageSync(key)
                 })
                 return obj
             default:
                 for (let i = 0; i < localStorage.length; i++) {
-                    let key = localStorage.key(i)
+                    const key = localStorage.key(i)
                     obj[key] = localStorage.getItem(key)
                 }
                 return obj
@@ -365,7 +365,7 @@ export default class Adapter {
     static getDisplayInfo() {
         switch (Adapter.platform) {
             case 'weixin_minigame':
-                let {
+                const {
                     screenWidth,
                     screenHeight,
                     windowWidth,

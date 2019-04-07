@@ -49,8 +49,8 @@ export default class Texture {
     //描绘图片某个格点到某个位置
     drawTile(ctx, targetX, targetY, tile = 0) {
         if (this.loaded) {
-            let sourceX = (tile % this.columns) * this.tileWidth
-            let sourceY = parseInt(tile / this.columns) * this.tileHeight
+            const sourceX = (tile % this.columns) * this.tileWidth
+            const sourceY = parseInt(tile / this.columns) * this.tileHeight
             ctx.drawImage(this.canvas, sourceX, sourceY, this.tileWidth, this.tileHeight, ~~targetX, ~~targetY, this.sizeWidth, this.sizeHeight)
         } else {
             throw new Error('请先加载纹理资源' + this.path)

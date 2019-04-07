@@ -56,9 +56,9 @@ export default class Animation {
         if (this.isPlaying && !this.ended) {
             this.timer.step()
             //该播放第几帧
-            let frameTotal = Math.floor(this.timer.getElapsedTime() / this.delay)
+            const frameTotal = Math.floor(this.timer.getElapsedTime() / this.delay)
             //播放次数
-            let count = Math.floor(frameTotal / this.frames.length)
+            const count = Math.floor(frameTotal / this.frames.length)
             //如果无限次播放或者未达到播放循环次数，则播放下一帧，否则停留在最后一帧
             if (this.isLoop || count < this.loopCount) {
                 this.currentFrame = frameTotal % this.frames.length

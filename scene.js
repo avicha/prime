@@ -1,7 +1,8 @@
 import EventListener from './event_listener'
 export default class Scene extends EventListener {
-    constructor() {
+    constructor(game) {
         super()
+        this.shape = game.renderStageZone
         this._entities = []
     }
     static getResources() {
@@ -12,6 +13,10 @@ export default class Scene extends EventListener {
     }
     addGameObject(gameObject) {
         this._entities.push(gameObject)
+        if (!gameObject.relative && gameObject.fixed) {
+            gameObject.relative = this
+        }
+        gameObject._updatePosition()
         gameObject.on('died', () => {
             this.removeGameObject(gameObject)
         })
@@ -19,7 +24,7 @@ export default class Scene extends EventListener {
         return gameObject
     }
     removeGameObject(gameObject) {
-        let index = this._entities.indexOf(gameObject)
+        const index = this._entities.indexOf(gameObject)
         this._entities.splice(index, 1)
         return gameObject
     }

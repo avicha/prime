@@ -30,7 +30,7 @@ export default class Clock {
     //更新下一个时刻
     step() {
         let delta = 0
-        let current = Date.now()
+        const current = Date.now()
         if (this._running) {
             delta = current - this._oldTime
             this._oldTime = current
