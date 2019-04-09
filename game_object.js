@@ -43,6 +43,15 @@ export default class GameObject extends EventListener {
         this.trigger('died')
         return this
     }
+    setPosition() {
+        this._position.set(arguments)
+    }
+    setPositionX(x) {
+        this._position.x = x
+    }
+    setPositionY(y) {
+        this._position.y = y
+    }
     _updatePosition() {
         if (this.relative && this.relative.shape) {
             switch (this.fixed) {

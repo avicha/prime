@@ -1,13 +1,20 @@
 import Clock from './clock'
 
 export default class Animation {
-    constructor(texture, frames = [0], delay = 1000 / 60) {
+    constructor(name, {
+        texture,
+        frames = [0],
+        delay = 1000 / 60,
+        currentFrame = 0,
+        isLoop = true
+    }) {
+        this.name = name
         this.texture = texture
         this.frames = frames
         this.delay = delay
-        this.isLoop = true
-        this.currentFrame = 0
-        this.tile = this.frames[0]
+        this.isLoop = isLoop
+        this.currentFrame = currentFrame
+        this.tile = this.frames[currentFrame]
         this.timer = new Clock(false)
     }
     //播放
