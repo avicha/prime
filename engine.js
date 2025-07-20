@@ -13,12 +13,16 @@ const defaultConfig = {
     stageColor: null,
     stageScaleMode: 'contain',
     debug: false,
+    fullscreen: true,
 };
 export default class Engine extends EventListener {
     constructor(opts = {}) {
         super();
         this.opts = Object.assign({}, defaultConfig, opts);
         this._canvas = this.opts.canvas || Adapter.createCanvas(true);
+        if (!this.opts.canvas) {
+            this.opts.fullscreen = true;
+        }
         this.isRunning = false;
         Adapter.setPreferredFramesPerSecond(this.opts.fps);
         const event = new Event({
@@ -49,6 +53,11 @@ export default class Engine extends EventListener {
         if (w && h) {
             this.stageWidth = w;
             this.stageHeight = h;
+            if (this.stageWidth < this.stageHeight) {
+                this.opts.orientation = 'portrait';
+            } else {
+                this.opts.orientation = 'landscape';
+            }
             this.canvas = Adapter.createCanvas();
             this.canvas.width = w;
             this.canvas.height = h;
@@ -66,180 +75,130 @@ export default class Engine extends EventListener {
         }
     }
     fitScreen() {
-        const { screenWidth, screenHeight, screenSizeRatio } = this.getDisplayInfo();
-        this._canvas.style.width = (this.isCanvasRotate ? screenHeight : screenWidth) + 'px';
-        this._canvas.style.height = (this.isCanvasRotate ? screenWidth : screenHeight) + 'px';
+        const { canvasWidth, canvasHeight, canvasSizeRatio } = this.getDisplayInfo();
+        if (this.opts.fullscreen) {
+            this._canvas.width = this.isCanvasRotate ? canvasHeight : canvasWidth;
+            this._canvas.height = this.isCanvasRotate ? canvasWidth : canvasHeight;
+        }
         this._context = this._canvas.getContext('2d');
         const stageSizeRatio = this.stageWidth / this.stageHeight;
         switch (this.opts.stageScaleMode) {
             case 'contain':
                 this.renderStageZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight);
-                if (screenSizeRatio < stageSizeRatio) {
-                    if (this.isCanvasRotate) {
-                        this._canvas.width = this.stageWidth / screenSizeRatio;
-                        this._canvas.height = this.stageWidth;
-                        this.renderScreenZone = new Rectangle(
-                            0,
-                            Math.round((this._canvas.width - this.stageHeight) / 2),
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                    } else {
-                        this._canvas.width = this.stageWidth;
-                        this._canvas.height = this.stageWidth / screenSizeRatio;
-                        this.renderScreenZone = new Rectangle(
-                            0,
-                            Math.round((this._canvas.height - this.stageHeight) / 2),
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                    }
-                    this.ratio = new Vector2(screenWidth / this.stageWidth, screenWidth / this.stageWidth);
+                if (canvasSizeRatio < stageSizeRatio) {
+                    const ratio = canvasWidth / this.stageWidth;
+                    const resizeStageHeightToCanvasHeight = Math.round(this.stageHeight * ratio);
+                    this.renderCanvasZone = new Rectangle(
+                        0,
+                        Math.round((canvasHeight - resizeStageHeightToCanvasHeight) / 2),
+                        canvasWidth,
+                        resizeStageHeightToCanvasHeight
+                    );
+                    this.ratio = new Vector2(ratio, ratio);
                 } else {
-                    if (this.isCanvasRotate) {
-                        this._canvas.width = this.stageHeight;
-                        this._canvas.height = this.stageHeight * screenSizeRatio;
-                        this.renderScreenZone = new Rectangle(
-                            Math.round((this._canvas.height - this.stageWidth) / 2),
-                            0,
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                    } else {
-                        this._canvas.width = this.stageHeight * screenSizeRatio;
-                        this._canvas.height = this.stageHeight;
-                        this.renderScreenZone = new Rectangle(
-                            Math.round((this._canvas.width - this.stageWidth) / 2),
-                            0,
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                    }
-                    this.ratio = new Vector2(screenHeight / this.stageHeight, screenHeight / this.stageHeight);
+                    const ratio = canvasHeight / this.stageHeight;
+                    const resizeStageWidthToCanvasWidth = Math.round(this.stageWidth * ratio);
+                    this.renderCanvasZone = new Rectangle(
+                        Math.round((canvasWidth - resizeStageWidthToCanvasWidth) / 2),
+                        0,
+                        resizeStageWidthToCanvasWidth,
+                        canvasHeight
+                    );
+                    this.ratio = new Vector2(ratio, ratio);
                 }
                 break;
             case 'cover':
-                if (screenSizeRatio < stageSizeRatio) {
-                    if (this.isCanvasRotate) {
-                        this._canvas.width = this.stageHeight;
-                        this._canvas.height = this.stageHeight * screenSizeRatio;
-                        this.renderScreenZone = new Rectangle(
-                            Math.round((this._canvas.height - this.stageWidth) / 2),
-                            0,
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                        this.renderStageZone = new Rectangle(
-                            Math.round((this.stageWidth - this._canvas.height) / 2),
-                            0,
-                            this._canvas.height,
-                            this._canvas.width
-                        );
-                    } else {
-                        this._canvas.width = this.stageHeight * screenSizeRatio;
-                        this._canvas.height = this.stageHeight;
-                        this.renderScreenZone = new Rectangle(
-                            Math.round((this._canvas.width - this.stageWidth) / 2),
-                            0,
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                        this.renderStageZone = new Rectangle(
-                            Math.round((this.stageWidth - this._canvas.width) / 2),
-                            0,
-                            this._canvas.width,
-                            this._canvas.height
-                        );
-                    }
-                    this.ratio = new Vector2(screenHeight / this.stageHeight, screenHeight / this.stageHeight);
+                if (canvasSizeRatio < stageSizeRatio) {
+                    const ratio = canvasHeight / this.stageHeight;
+                    const resizeStageWidthToCanvasWidth = Math.round(this.stageWidth * ratio);
+                    const resizeCanvasWidthToStageWidth = Math.round(canvasWidth / ratio);
+                    this.renderCanvasZone = new Rectangle(
+                        Math.round((canvasWidth - resizeStageWidthToCanvasWidth) / 2),
+                        0,
+                        resizeStageWidthToCanvasWidth,
+                        canvasHeight
+                    );
+                    this.renderStageZone = new Rectangle(
+                        Math.round((this.stageWidth - resizeCanvasWidthToStageWidth) / 2),
+                        0,
+                        resizeCanvasWidthToStageWidth,
+                        this.stageHeight
+                    );
+                    this.ratio = new Vector2(ratio, ratio);
                 } else {
-                    if (this.isCanvasRotate) {
-                        this._canvas.width = this.stageWidth / screenSizeRatio;
-                        this._canvas.height = this.stageWidth;
-                        this.renderScreenZone = new Rectangle(
-                            0,
-                            Math.round((this._canvas.width - this.stageHeight) / 2),
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                        this.renderStageZone = new Rectangle(
-                            0,
-                            Math.round((this.stageHeight - this._canvas.width) / 2),
-                            this._canvas.height,
-                            this._canvas.width
-                        );
-                    } else {
-                        this._canvas.width = this.stageWidth;
-                        this._canvas.height = this.stageWidth / screenSizeRatio;
-                        this.renderScreenZone = new Rectangle(
-                            0,
-                            Math.round((this._canvas.height - this.stageHeight) / 2),
-                            this.stageWidth,
-                            this.stageHeight
-                        );
-                        this.renderStageZone = new Rectangle(
-                            0,
-                            Math.round((this.stageHeight - this._canvas.height) / 2),
-                            this._canvas.width,
-                            this._canvas.height
-                        );
-                    }
-                    this.ratio = new Vector2(screenWidth / this.stageWidth, screenWidth / this.stageWidth);
+                    const ratio = canvasWidth / this.stageWidth;
+                    const resizeStageHeightToCanvasHeight = Math.round(this.stageHeight * ratio);
+                    const resizeCanvasHeightToStageHeight = Math.round(canvasHeight / ratio);
+                    this.renderCanvasZone = new Rectangle(
+                        0,
+                        Math.round((canvasHeight - resizeStageHeightToCanvasHeight) / 2),
+                        canvasWidth,
+                        resizeStageHeightToCanvasHeight
+                    );
+                    this.renderStageZone = new Rectangle(
+                        0,
+                        Math.round((this.stageHeight - resizeCanvasHeightToStageHeight) / 2),
+                        this.stageWidth,
+                        resizeCanvasHeightToStageHeight
+                    );
+                    this.ratio = new Vector2(ratio, ratio);
                 }
                 break;
             case 'fill':
-                if (this.isCanvasRotate) {
-                    this._canvas.width = this.stageHeight;
-                    this._canvas.height = this.stageWidth;
-                } else {
-                    this._canvas.width = this.stageWidth;
-                    this._canvas.height = this.stageHeight;
-                }
-                this.ratio = new Vector2(screenWidth / this.stageWidth, screenHeight / this.stageHeight);
-                this.renderScreenZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight);
+                this.ratio = new Vector2(canvasWidth / this.stageWidth, canvasHeight / this.stageHeight);
                 this.renderStageZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight);
+                this.renderCanvasZone = new Rectangle(0, 0, canvasWidth, canvasHeight);
+                this.renderCanvasZone = new Rectangle(0, 0, canvasWidth, canvasHeight);
                 break;
             default:
                 throw new Error(`你所选择的屏幕适配模式${this.opts.stageScaleMode}暂不被支持`);
         }
         if (this.opts.debug) {
-            console.debug('renderScreenZone', this.renderScreenZone);
+            console.debug('renderCanvasZone', this.renderCanvasZone);
             console.debug('renderStageZone', this.renderStageZone);
             console.debug('ratio', this.ratio);
             console.debug('isCanvasRotate', this.isCanvasRotate);
         }
     }
     getDisplayInfo() {
-        const { windowWidth, windowHeight } = Adapter.getDisplayInfo();
+        let canvasWidth, canvasHeight;
+        if (this.opts.fullscreen) {
+            const displayInfo = Adapter.getDisplayInfo();
+            canvasWidth = displayInfo.windowWidth;
+            canvasHeight = displayInfo.windowHeight;
+        } else {
+            canvasWidth = this.opts.canvas.width;
+            canvasHeight = this.opts.canvas.height;
+        }
         if (
-            (this.opts.orientation == 'landscape' && windowWidth < windowHeight) ||
-            (this.opts.orientation == 'portrait' && windowWidth > windowHeight)
+            (this.opts.orientation == 'landscape' && canvasWidth < canvasHeight) ||
+            (this.opts.orientation == 'portrait' && canvasWidth > canvasHeight)
         ) {
             this.isCanvasRotate = true;
             return {
-                screenWidth: windowHeight,
-                screenHeight: windowWidth,
-                screenSizeRatio: windowHeight / windowWidth,
+                canvasWidth: canvasHeight,
+                canvasHeight: canvasWidth,
+                canvasSizeRatio: canvasHeight / canvasWidth,
             };
         } else {
             this.isCanvasRotate = false;
             return {
-                screenWidth: windowWidth,
-                screenHeight: windowHeight,
-                screenSizeRatio: windowWidth / windowHeight,
+                canvasWidth: canvasWidth,
+                canvasHeight: canvasHeight,
+                canvasSizeRatio: canvasWidth / canvasHeight,
             };
         }
     }
     handleEvent(e) {
         if (this.currentScene) {
             const { x, y } = e;
-            const { screenWidth, screenHeight } = this.getDisplayInfo();
+            const { canvasHeight } = this.getDisplayInfo();
             //点相对于画布的屏幕坐标
-            const point = this.isCanvasRotate ? new Vector2(y, screenHeight - x) : new Vector2(x, y);
-            //点相对于画布的游戏坐标
+            const point = this.isCanvasRotate ? new Vector2(y, canvasHeight - x) : new Vector2(x, y);
+            //点相对于画布渲染左上角的屏幕坐标
+            point.subSelf(this.renderCanvasZone.left, this.renderCanvasZone.top);
+            //点转换为画布的游戏坐标
             point.set(point.x / this.ratio.x, point.y / this.ratio.y);
-            //舞台相对于画布的游戏坐标
-            point.subSelf(this.renderScreenZone.left, this.renderScreenZone.top);
             //最终得到的就是点相对于舞台的坐标
             const entities = this.currentScene.getEntities();
             for (let len = entities.length; len; len--) {
@@ -352,10 +311,10 @@ export default class Engine extends EventListener {
                 0,
                 this.stageWidth,
                 this.stageHeight,
-                this.renderScreenZone.left,
-                this.renderScreenZone.top,
-                this.renderScreenZone.width,
-                this.renderScreenZone.height
+                this.renderCanvasZone.left,
+                this.renderCanvasZone.top,
+                this.renderCanvasZone.width,
+                this.renderCanvasZone.height
             );
             if (this.isCanvasRotate) {
                 this._context.restore();

@@ -33,7 +33,7 @@ export default class Event extends EventListener {
     bind(target) {
         this.target = target;
     }
-    onTouchStart({ touches, changedTouches, timestamp = Date.now(), preventDefault }) {
+    onTouchStart({ touches, _changedTouches, _timestamp = Date.now(), _preventDefault }) {
         for (let i = 0; i < touches.length; i++) {
             const touch = touches[i];
             const x = touch.clientX;
@@ -86,7 +86,7 @@ export default class Event extends EventListener {
             this.longPressTick[identifier] = null;
         }
     }
-    onTouchMove({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchMove({ touches, _changedTouches, _timestamp = Date.now() }) {
         for (let i = 0; i < touches.length; i++) {
             const touch = touches[i];
             const x = touch.clientX;
@@ -116,7 +116,7 @@ export default class Event extends EventListener {
             this.moveDistanceY[identifier] += Math.abs(dy);
         }
     }
-    onTouchEnd({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchEnd({ _touches, changedTouches, timestamp = Date.now() }) {
         for (let i = 0; i < changedTouches.length; i++) {
             const touch = changedTouches[i];
             const x = touch.clientX;
@@ -213,7 +213,7 @@ export default class Event extends EventListener {
             this.startTouchInfo[identifier] = null;
         }
     }
-    onTouchCancel({ touches, changedTouches, timestamp = Date.now() }) {
+    onTouchCancel({ _touches, changedTouches, _timestamp = Date.now() }) {
         for (let i = 0; i < changedTouches.length; i++) {
             const touch = changedTouches[i];
             const x = touch.clientX;

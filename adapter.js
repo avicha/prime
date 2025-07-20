@@ -1,23 +1,23 @@
-const is_weixin_minigame = typeof wx != 'undefined' && !!wx.createCanvas;
-const is_weixin_miniprogram = typeof wx != 'undefined' && !!wx.createSelectorQuery;
+const isWeixinMinigame = typeof wx != 'undefined' && !!wx.createCanvas;
+const isWeixinMiniprogram = typeof wx != 'undefined' && !!wx.createSelectorQuery;
 
 let platform = 'unknown';
-if (is_weixin_minigame) {
+if (isWeixinMinigame) {
     platform = 'weixin_minigame';
 } else {
-    if (is_weixin_miniprogram) {
+    if (isWeixinMiniprogram) {
         platform = 'weixin_miniprogram';
     } else {
-        const is_weixin_browser = /MicroMessenger/i.test(window.navigator && window.navigator.userAgent);
-        const is_mobile_browser = /Mobile/i.test(window.navigator && window.navigator.userAgent);
-        const is_web_browser = !!window.navigator.userAgent;
-        if (is_weixin_browser) {
+        const isWeixinBrowser = /MicroMessenger/i.test(window.navigator && window.navigator.userAgent);
+        const isMobileBrowser = /Mobile/i.test(window.navigator && window.navigator.userAgent);
+        const isWebBrowser = !!window.navigator.userAgent;
+        if (isWeixinBrowser) {
             platform = 'weixin_web';
         } else {
-            if (is_mobile_browser) {
+            if (isMobileBrowser) {
                 platform = 'mobile_web';
             } else {
-                if (is_web_browser) {
+                if (isWebBrowser) {
                     platform = 'pc_web';
                 }
             }
@@ -35,30 +35,33 @@ export default class Adapter {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 return wx.createCanvas();
-            default:
+            default: {
                 const canvas = document.createElement('canvas');
                 if (isAppendToBody) {
                     document.body.appendChild(canvas);
                 }
                 return canvas;
+            }
         }
     }
     static createAudio() {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 return wx.createInnerAudioContext();
-            default:
+            default: {
                 const audio = new Audio();
                 return audio;
+            }
         }
     }
     static createImage() {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 return wx.createImage();
-            default:
+            default: {
                 const image = new Image();
                 return image;
+            }
         }
     }
     static setPreferredFramesPerSecond(fps) {
@@ -78,38 +81,30 @@ export default class Adapter {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 return requestAnimationFrame(...args);
-            default:
-                requestAnimationFrame =
+            default: {
+                const requestAnimationFrame =
                     window.requestAnimationFrame ||
                     window.webkitRequestAnimationFrame ||
                     window.mozRequestAnimationFrame ||
                     window.oRequestAnimationFrame ||
                     window.msRequestAnimationFrame;
                 return requestAnimationFrame(...args);
+            }
         }
     }
     static cancelAnimationFrame(...args) {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 return cancelAnimationFrame(...args);
-            default:
-                cancelAnimationFrame =
+            default: {
+                const cancelAnimationFrame =
                     window.cancelAnimationFrame ||
                     window.webkitCancelAnimationFrame ||
                     window.mozCancelAnimationFrame ||
                     window.oCancelAnimationFrame ||
                     window.msCancelAnimationFrame;
                 return cancelAnimationFrame(...args);
-        }
-    }
-    static cancelAnimationFrame(...args) {
-        switch (Adapter.platform) {
-            case 'weixin_minigame':
-                return cancelAnimationFrame(...args);
-            default:
-                cancelAnimationFrame =
-                    window.cancelAnimationFrame || window.webkitCancelAnimationFrame || window.mozCancelAnimationFrame;
-                return cancelAnimationFrame(...args);
+            }
         }
     }
     static setTimeout(...args) {
@@ -149,12 +144,13 @@ export default class Adapter {
             case 'weixin_minigame':
                 wx.onTouchStart(callback);
                 break;
-            default:
+            default: {
                 const dom = document.getElementsByTagName('canvas')
                     ? document.getElementsByTagName('canvas')[0]
                     : window;
                 dom.addEventListener('touchstart', callback);
                 break;
+            }
         }
     }
     static onTouchMove(callback) {
@@ -162,7 +158,7 @@ export default class Adapter {
             case 'weixin_minigame':
                 wx.onTouchMove(callback);
                 break;
-            default:
+            default: {
                 const dom = document.getElementsByTagName('canvas')
                     ? document.getElementsByTagName('canvas')[0]
                     : window;
@@ -171,6 +167,7 @@ export default class Adapter {
                     callback(e);
                 });
                 break;
+            }
         }
     }
     static onTouchEnd(callback) {
@@ -178,12 +175,13 @@ export default class Adapter {
             case 'weixin_minigame':
                 wx.onTouchEnd(callback);
                 break;
-            default:
+            default: {
                 const dom = document.getElementsByTagName('canvas')
                     ? document.getElementsByTagName('canvas')[0]
                     : window;
                 dom.addEventListener('touchend', callback);
                 break;
+            }
         }
     }
     static onTouchCancel(callback) {
@@ -191,19 +189,19 @@ export default class Adapter {
             case 'weixin_minigame':
                 wx.onTouchCancel(callback);
                 break;
-            default:
+            default: {
                 const dom = document.getElementsByTagName('canvas')
                     ? document.getElementsByTagName('canvas')[0]
                     : window;
                 dom.addEventListener('touchcancel', callback);
                 break;
+            }
         }
     }
     static onError(callback) {
         switch (Adapter.platform) {
             case 'weixin_minigame':
                 return wx.onError(callback);
-                break;
             default:
                 window.onerror = (msg, url, line, col, err) => {
                     callback({
@@ -237,7 +235,7 @@ export default class Adapter {
                 });
                 audio.src = src;
                 break;
-            default:
+            default: {
                 const URL = window.URL || window.webkitURL;
                 if (URL && window.location.origin != 'file://') {
                     //绑定加载完成事件
@@ -256,12 +254,13 @@ export default class Adapter {
                     xhr.responseType = 'blob';
                     xhr.send();
                 } else {
-                    audio.addEventListener('canplaythrough', (e) => {
+                    audio.addEventListener('canplaythrough', () => {
                         callback(null);
                     });
                     audio.src = src;
                 }
                 break;
+            }
         }
     }
     static playAudio(audio) {
@@ -271,13 +270,15 @@ export default class Adapter {
                 break;
             case 'weixin_web':
                 wx.getNetworkType({
-                    complete(res) {
+                    complete() {
                         audio.play();
                     },
                 });
-            default:
+                break;
+            default: {
                 audio.play();
                 break;
+            }
         }
     }
     static seekAudio(audio, position) {
@@ -348,18 +349,20 @@ export default class Adapter {
     static getAllStorage() {
         const obj = {};
         switch (Adapter.platform) {
-            case 'weixin_minigame':
+            case 'weixin_minigame': {
                 const storageInfo = wx.getStorageInfoSync();
                 storageInfo.keys.forEach((key) => {
                     obj[key] = wx.getStorageSync(key);
                 });
                 return obj;
-            default:
+            }
+            default: {
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     obj[key] = localStorage.getItem(key);
                 }
                 return obj;
+            }
         }
     }
     static getTextLineHeight({ fontStyle, fontWeight, fontSize, fontFamily, text }) {
@@ -378,8 +381,8 @@ export default class Adapter {
     }
     static getDisplayInfo() {
         switch (Adapter.platform) {
-            case 'weixin_minigame':
-                const { screenWidth, screenHeight, windowWidth, windowHeight, pixelRatio } = wx.getSystemInfoSync();
+            case 'weixin_minigame': {
+                const { screenWidth, screenHeight, windowWidth, windowHeight, pixelRatio } = wx.getWindowInfo();
                 return {
                     screenWidth,
                     screenHeight,
@@ -387,6 +390,7 @@ export default class Adapter {
                     windowHeight,
                     pixelRatio,
                 };
+            }
             default:
                 return {
                     screenWidth: window.screen.width,
