@@ -23,7 +23,7 @@ export default class Sound {
         if (!this.loaded) {
             this.music = Adapter.createAudio();
             //绑定加载完成事件
-            Adapter.onAudioCanplay(this.music, this.path, (err) => {
+            Adapter.onAudioCanplay(this.music, Adapter.resourceBasePath + this.path, (err) => {
                 if (!this.loaded) {
                     if (!err) {
                         this.onload(callback);

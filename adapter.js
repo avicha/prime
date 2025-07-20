@@ -30,6 +30,7 @@ export default class Adapter {
     static setPlatform(platform) {
         Adapter.platform = platform;
     }
+    static resourceBasePath = ['weixin_minigame', 'weixin_miniprogram'].includes(platform) ? '/resources' : '';
     static createCanvas(isAppendToBody) {
         switch (Adapter.platform) {
             case 'weixin_minigame':

@@ -16,7 +16,7 @@ export default class Texture {
             this.image.onload = () => {
                 this.onload(callback);
             };
-            this.image.src = this.path;
+            this.image.src = Adapter.resourceBasePath + this.path;
         } else {
             this.onload(callback);
         }
