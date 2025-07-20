@@ -213,7 +213,7 @@ var Easing = Object.freeze({
 });
 
 var _nowFunc = function () {
-    return performance.now();
+    return Date.now();
 };
 var now = function () {
     return _nowFunc();
