@@ -52,6 +52,15 @@ export default class GameObject extends EventListener {
     setPositionY(y) {
         this._position.y = y;
     }
+    getPosition() {
+        return this._position.clone();
+    }
+    getPositionX() {
+        return this._position.x;
+    }
+    getPositionY() {
+        return this._position.y;
+    }
     _updatePosition() {
         if (this.relative && this.relative.shape) {
             switch (this.fixed) {
