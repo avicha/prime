@@ -1,4 +1,5 @@
 import EventListener from './event_listener';
+import Adapter from './adapter';
 export default class Loader extends EventListener {
     constructor() {
         super();
@@ -28,7 +29,9 @@ export default class Loader extends EventListener {
                 });
             }
         } else {
-            this.trigger('progressComplete');
+            Adapter.setTimeout(() => {
+                this.trigger('progressComplete');
+            }, 0);
         }
     }
 }

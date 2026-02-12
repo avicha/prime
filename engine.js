@@ -276,7 +276,9 @@ export default class Engine extends EventListener {
             });
             loader.load();
         } else {
-            callback(null);
+            Adapter.setTimeout(() => {
+                callback(null);
+            }, 0);
         }
     }
     run() {
