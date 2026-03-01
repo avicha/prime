@@ -106,6 +106,8 @@ export default class Engine extends EventListener {
                     );
                     this.ratio = new Vector2(ratio, ratio);
                 }
+                this.renderStageWidthRatio = 1;
+                this.renderStageHeightRatio = 1;
                 break;
             case 'cover':
                 if (canvasSizeRatio < stageSizeRatio) {
@@ -125,6 +127,8 @@ export default class Engine extends EventListener {
                         this.stageHeight
                     );
                     this.ratio = new Vector2(ratio, ratio);
+                    this.renderStageWidthRatio = resizeCanvasWidthToStageWidth / this.stageWidth;
+                    this.renderStageHeightRatio = 1;
                 } else {
                     const ratio = canvasWidth / this.stageWidth;
                     const resizeStageHeightToCanvasHeight = Math.round(this.stageHeight * ratio);
@@ -142,6 +146,8 @@ export default class Engine extends EventListener {
                         resizeCanvasHeightToStageHeight
                     );
                     this.ratio = new Vector2(ratio, ratio);
+                    this.renderStageWidthRatio = 1;
+                    this.renderStageHeightRatio = resizeCanvasHeightToStageHeight / this.stageHeight;
                 }
                 break;
             case 'fill':
@@ -149,6 +155,8 @@ export default class Engine extends EventListener {
                 this.renderStageZone = new Rectangle(0, 0, this.stageWidth, this.stageHeight);
                 this.renderCanvasZone = new Rectangle(0, 0, canvasWidth, canvasHeight);
                 this.renderCanvasZone = new Rectangle(0, 0, canvasWidth, canvasHeight);
+                this.renderStageWidthRatio = 1;
+                this.renderStageHeightRatio = 1;
                 break;
             default:
                 throw new Error(`你所选择的屏幕适配模式${this.opts.stageScaleMode}暂不被支持`);
@@ -158,6 +166,7 @@ export default class Engine extends EventListener {
             console.debug('renderStageZone', this.renderStageZone);
             console.debug('ratio', this.ratio);
             console.debug('isCanvasRotate', this.isCanvasRotate);
+            console.debug('renderStageRatio', this.renderStageWidthRatio, this.renderStageHeightRatio);
         }
     }
     getDisplayInfo() {
